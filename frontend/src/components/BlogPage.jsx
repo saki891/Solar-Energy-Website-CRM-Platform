@@ -10,7 +10,7 @@ export default function BlogPage({ theme }) {
     excerpt: 'Discover how battery storage paired with high-efficiency rooftop solar arrays creates self-sustaining microgrids that keep your property powered during utility grid outages.',
     date: 'Sep 5, 2026',
     readTime: '6 min read',
-    image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://picsum.photos/seed/solara-featured/1200/700',
   };
 
   const posts = [
@@ -20,7 +20,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Optimize your home’s HVAC consumption by pairing smart thermostats with peak solar generation hours for maximum financial ROI.',
       date: 'Sep 2, 2026',
       readTime: '4 min read',
-      image: 'https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=800&q=80',
+      image: 'https://picsum.photos/seed/solara-post1/800/500',
     },
     {
       category: 'Policy',
@@ -28,7 +28,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Navigate the updated clean energy tax credit policies to save up to 30% on your system installation costs.',
       date: 'Aug 28, 2026',
       readTime: '5 min read',
-      image: 'https://images.unsplash.com/photo-1592833159155-c62df135c883?auto=format&fit=crop&w=800&q=80',
+      image: 'https://picsum.photos/seed/solara-post2/800/500',
     },
     {
       category: 'Maintenance',
@@ -36,7 +36,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Essential advice for seasonal panel cleaning, snow removal, shade mitigation, and reading inverter diagnostics.',
       date: 'Aug 20, 2026',
       readTime: '3 min read',
-      image: 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=800&q=80',
+      image: 'https://picsum.photos/seed/solara-post3/800/500',
     },
     {
       category: 'Technology',
@@ -44,7 +44,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'A clear technical breakdown comparing cell efficiency ratings, temperature coefficients, and 25-year degradation rates.',
       date: 'Aug 15, 2026',
       readTime: '7 min read',
-      image: 'https://images.unsplash.com/photo-1548611716-300181515d18?auto=format&fit=crop&w=800&q=80',
+      image: 'https://picsum.photos/seed/solara-post4/800/500',
     },
     {
       category: 'Case Study',
@@ -52,7 +52,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'A deep dive into how a 500 kW rooftop solar array transformed operating margins and cash flow for Apex Logistics.',
       date: 'Aug 10, 2026',
       readTime: '5 min read',
-      image: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80',
+      image: 'https://picsum.photos/seed/solara-post5/800/500',
     },
     {
       category: 'Guides',
@@ -60,7 +60,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Calculate the exact solar kilowatt capacity needed to charge your electric vehicle using 100% clean, self-generated power.',
       date: 'Aug 02, 2026',
       readTime: '6 min read',
-      image: 'https://images.unsplash.com/photo-1558441719-444ffb6a6f8b?auto=format&fit=crop&w=800&q=80',
+      image: 'https://picsum.photos/seed/solara-post6/800/500',
     },
   ];
 
