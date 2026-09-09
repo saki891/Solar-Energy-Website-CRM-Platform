@@ -51,16 +51,19 @@ export default function HomePage({ theme, setCurrentPage }) {
       quote: "Solara transformed our energy bills completely. Our electricity cost dropped by over 80% in the first month alone, and the installation team was incredibly professional.",
       name: "Rajesh Sharma",
       location: "Mumbai, Maharashtra",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
     },
     {
       quote: "From initial site survey to subsidy approval and grid commissioning, Solara handled every permit seamlessly. Best green investment for our manufacturing unit.",
       name: "Ananya Patil",
       location: "Pune, Maharashtra",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
     },
     {
       quote: "The real-time mobile monitoring app gives us total visibility over daily power generation. Highly recommend Solara for any residential solar setup!",
       name: "Vikram Deshmukh",
       location: "Nashik, Maharashtra",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
     },
   ];
 
@@ -207,7 +210,7 @@ export default function HomePage({ theme, setCurrentPage }) {
         </div>
       </section>
 
-      {/* 3. Testimonials Section */}
+      {/* 3. Testimonials Section (with Customer Avatar Photos) */}
       <section className="py-16 sm:py-20">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
           
@@ -253,13 +256,21 @@ export default function HomePage({ theme, setCurrentPage }) {
                   </p>
                 </div>
 
-                {/* Customer Name & Location */}
-                <div className="pt-4 border-t" style={{ borderColor: theme.border }}>
-                  <div className="font-bold text-base" style={{ color: theme.text }}>
-                    {item.name}
-                  </div>
-                  <div className="text-sm font-medium mt-0.5" style={{ color: theme.textFaint }}>
-                    {item.location}
+                {/* Customer Avatar Photo + Name & Location Flex Row */}
+                <div className="pt-4 border-t flex items-center gap-3" style={{ borderColor: theme.border }}>
+                  <img
+                    src={item.avatar}
+                    alt={item.name}
+                    className="w-10 h-10 rounded-full object-cover border shadow-sm flex-shrink-0"
+                    style={{ borderColor: theme.border }}
+                  />
+                  <div>
+                    <div className="font-bold text-base" style={{ color: theme.text }}>
+                      {item.name}
+                    </div>
+                    <div className="text-sm font-medium mt-0.5" style={{ color: theme.textFaint }}>
+                      {item.location}
+                    </div>
                   </div>
                 </div>
 

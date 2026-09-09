@@ -51,7 +51,7 @@ export default function ContactPage({ theme }) {
           </p>
 
           {/* Two-Column Layout (60/40 Split on Desktop) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-12 sm:mt-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-12 sm:mt-16 items-stretch">
             
             {/* LEFT Column: Form (60% width = lg:col-span-7) */}
             <div
@@ -215,7 +215,7 @@ export default function ContactPage({ theme }) {
               )}
             </div>
 
-            {/* RIGHT Column: Stacked Info Cards + Map Placeholder (40% width = lg:col-span-5) */}
+            {/* RIGHT Column: Stacked Info Cards + Full-Cover Building Map Container (40% width = lg:col-span-5) */}
             <div className="lg:col-span-5 flex flex-col space-y-6">
               
               {/* Card 1: Visit Us */}
@@ -305,30 +305,29 @@ export default function ContactPage({ theme }) {
                 </div>
               </div>
 
-              {/* Map Placeholder Card */}
+              {/* Map Container: Full-cover office building photo + floating pill overlay */}
               <div
-                className="rounded-2xl p-8 border flex flex-col items-center justify-center text-center min-h-[200px] flex-1 transition-colors duration-200"
-                style={{
-                  backgroundColor: theme.bgAlt,
-                  borderColor: theme.border,
-                }}
+                className="rounded-2xl border flex-1 min-h-[160px] overflow-hidden relative shadow-sm"
+                style={{ borderColor: theme.border }}
               >
+                <img
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
+                  alt="SOLARA Regional Office Building"
+                  className="w-full h-full object-cover min-h-[160px]"
+                />
+
+                {/* Floating Pill Overlay in Bottom-Left Corner */}
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-3 border shadow-sm"
+                  className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-md text-xs font-semibold border backdrop-blur-sm"
                   style={{
                     backgroundColor: theme.card,
+                    color: theme.text,
                     borderColor: theme.border,
-                    color: theme.green,
                   }}
                 >
-                  <MapPin className="w-6 h-6 stroke-[2.2]" />
+                  <MapPin className="w-3.5 h-3.5 stroke-[2.2]" style={{ color: theme.green }} />
+                  <span>Pune, Maharashtra</span>
                 </div>
-                <h5 className="font-bold text-base" style={{ color: theme.text }}>
-                  Interactive Map Preview
-                </h5>
-                <p className="text-xs mt-1 max-w-xs" style={{ color: theme.textFaint }}>
-                  BKC Headquarters & Regional Energy Consulting Center
-                </p>
               </div>
 
             </div>

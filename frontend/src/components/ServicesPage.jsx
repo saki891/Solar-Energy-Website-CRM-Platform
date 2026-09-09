@@ -63,25 +63,44 @@ export default function ServicesPage({ theme }) {
   return (
     <div className="transition-colors duration-200" style={{ backgroundColor: theme.bg }}>
       
-      {/* Header Section */}
+      {/* Header Section (2-Column Layout on Desktop, Stacks on Mobile) */}
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
           
-          <Eyebrow text="What we offer" theme={theme} />
-          
-          <h1
-            className="text-4xl sm:text-5xl lg:text-[54px] font-semibold leading-[1.15] tracking-tight max-w-4xl"
-            style={{ color: theme.text }}
-          >
-            Solar solutions for every roof and every budget.
-          </h1>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+            
+            {/* Left Column: Eyebrow, H1, Subtext */}
+            <div>
+              <Eyebrow text="What we offer" theme={theme} />
+              
+              <h1
+                className="text-4xl sm:text-5xl lg:text-[54px] font-semibold leading-[1.15] tracking-tight max-w-4xl"
+                style={{ color: theme.text }}
+              >
+                Solar solutions for every roof and every budget.
+              </h1>
 
-          <p
-            className="mt-6 text-base sm:text-lg lg:text-xl leading-relaxed max-w-3xl"
-            style={{ color: theme.textMuted }}
-          >
-            From residential rooftop setups to utility-scale solar microgrids, our end-to-end solar solutions are engineered for peak efficiency, seamless grid integration, and maximum long-term financial savings.
-          </p>
+              <p
+                className="mt-6 text-base sm:text-lg lg:text-xl leading-relaxed max-w-3xl"
+                style={{ color: theme.textMuted }}
+              >
+                From residential rooftop setups to utility-scale solar microgrids, our end-to-end solar solutions are engineered for peak efficiency, seamless grid integration, and maximum long-term financial savings.
+              </p>
+            </div>
+
+            {/* Right Column: Technician Solar Installation Image */}
+            <div
+              className="h-[288px] lg:h-[384px] w-full rounded-[28px] overflow-hidden border shadow-sm"
+              style={{ borderColor: theme.border }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1611365892117-00ac5ef43c90?auto=format&fit=crop&w=800&q=80"
+                alt="Technician installing solar panels"
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+          </div>
 
           {/* 3-Column Grid of 6 Service Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-12 sm:mt-16">

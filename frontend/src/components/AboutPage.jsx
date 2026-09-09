@@ -35,10 +35,26 @@ export default function AboutPage({ theme }) {
   ];
 
   const team = [
-    { initials: 'AM', name: 'Alex Morgan', role: 'Chief Executive Officer' },
-    { initials: 'ER', name: 'Elena Rostova', role: 'Head of Solar Engineering' },
-    { initials: 'MV', name: 'Marcus Vance', role: 'Director of Operations' },
-    { initials: 'SJ', name: 'Sarah Jenkins', role: 'Lead Sustainability Advisor' },
+    {
+      name: 'Alex Morgan',
+      role: 'Chief Executive Officer',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+    },
+    {
+      name: 'Elena Rostova',
+      role: 'Head of Solar Engineering',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    },
+    {
+      name: 'Marcus Vance',
+      role: 'Director of Operations',
+      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+    },
+    {
+      name: 'Sarah Jenkins',
+      role: 'Lead Sustainability Advisor',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
+    },
   ];
 
   return (
@@ -110,75 +126,92 @@ export default function AboutPage({ theme }) {
         </div>
       </section>
 
-      {/* Our Mission / Our Vision Section */}
+      {/* Our Mission / Our Vision Section (5-column Grid on Desktop) */}
       <section className="py-8 sm:py-12">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
             
-            {/* Our Mission */}
+            {/* Left 2 Columns: Solar Installation Rooftop Photo */}
             <div
-              className="rounded-2xl p-8 border transition-colors duration-200 flex flex-col justify-between"
-              style={{
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-              }}
+              className="lg:col-span-2 min-h-[280px] h-full w-full rounded-2xl overflow-hidden border shadow-sm"
+              style={{ borderColor: theme.border }}
             >
-              <div>
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-6"
-                  style={{
-                    backgroundColor: theme.greenSoft,
-                    color: theme.green,
-                  }}
-                >
-                  <Target className="w-6 h-6" />
-                </div>
-                <h3
-                  className="text-2xl font-bold tracking-tight mb-3"
-                  style={{ color: theme.text }}
-                >
-                  Our Mission
-                </h3>
-                <p
-                  className="text-base sm:text-lg leading-relaxed"
-                  style={{ color: theme.textMuted }}
-                >
-                  To accelerate the world’s transition to sustainable energy by delivering high-efficiency, reliable, and intelligent solar systems for residential, commercial, and industrial clients.
-                </p>
-              </div>
+              <img
+                src="https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=800&q=80"
+                alt="Solar installation team working on a rooftop"
+                className="w-full h-full object-cover min-h-[280px]"
+              />
             </div>
 
-            {/* Our Vision */}
-            <div
-              className="rounded-2xl p-8 border transition-colors duration-200 flex flex-col justify-between"
-              style={{
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-              }}
-            >
-              <div>
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-6"
-                  style={{
-                    backgroundColor: theme.greenSoft,
-                    color: theme.green,
-                  }}
-                >
-                  <Eye className="w-6 h-6" />
+            {/* Right 3 Columns: Mission and Vision Cards */}
+            <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Our Mission */}
+              <div
+                className="rounded-2xl p-8 border transition-colors duration-200 flex flex-col justify-between"
+                style={{
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                }}
+              >
+                <div>
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center mb-6"
+                    style={{
+                      backgroundColor: theme.greenSoft,
+                      color: theme.green,
+                    }}
+                  >
+                    <Target className="w-6 h-6" />
+                  </div>
+                  <h3
+                    className="text-2xl font-bold tracking-tight mb-3"
+                    style={{ color: theme.text }}
+                  >
+                    Our Mission
+                  </h3>
+                  <p
+                    className="text-base sm:text-lg leading-relaxed"
+                    style={{ color: theme.textMuted }}
+                  >
+                    To accelerate the world’s transition to sustainable energy by delivering high-efficiency, reliable, and intelligent solar systems for residential, commercial, and industrial clients.
+                  </p>
                 </div>
-                <h3
-                  className="text-2xl font-bold tracking-tight mb-3"
-                  style={{ color: theme.text }}
-                >
-                  Our Vision
-                </h3>
-                <p
-                  className="text-base sm:text-lg leading-relaxed"
-                  style={{ color: theme.textMuted }}
-                >
-                  To create a future where every building generates its own clean power, fostering environmental resilience and economic independence for generations to come.
-                </p>
               </div>
+
+              {/* Our Vision */}
+              <div
+                className="rounded-2xl p-8 border transition-colors duration-200 flex flex-col justify-between"
+                style={{
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                }}
+              >
+                <div>
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center mb-6"
+                    style={{
+                      backgroundColor: theme.greenSoft,
+                      color: theme.green,
+                    }}
+                  >
+                    <Eye className="w-6 h-6" />
+                  </div>
+                  <h3
+                    className="text-2xl font-bold tracking-tight mb-3"
+                    style={{ color: theme.text }}
+                  >
+                    Our Vision
+                  </h3>
+                  <p
+                    className="text-base sm:text-lg leading-relaxed"
+                    style={{ color: theme.textMuted }}
+                  >
+                    To create a future where every building generates its own clean power, fostering environmental resilience and economic independence for generations to come.
+                  </p>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -240,7 +273,7 @@ export default function AboutPage({ theme }) {
         </div>
       </section>
 
-      {/* Meet the Team Section */}
+      {/* Meet the Team Section (Real Portrait Photos) */}
       <section className="py-12 sm:py-16">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
           <div className="mb-10 text-center sm:text-left">
@@ -265,16 +298,13 @@ export default function AboutPage({ theme }) {
                   borderColor: theme.border,
                 }}
               >
-                <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center text-xl font-bold mb-4 border"
-                  style={{
-                    backgroundColor: theme.greenSoft,
-                    color: theme.green,
-                    borderColor: theme.border,
-                  }}
-                >
-                  {member.initials}
-                </div>
+                {/* Portrait Photo with 4px border in greenSoft color */}
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className="h-20 w-20 rounded-full object-cover mb-4 border-4 shadow-sm"
+                  style={{ borderColor: theme.greenSoft }}
+                />
                 <h4
                   className="text-lg font-bold"
                   style={{ color: theme.text }}
