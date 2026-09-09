@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
-import Hero from './components/Hero';
+import HomePage from './components/HomePage';
 import AboutPage from './components/AboutPage';
 import ServicesPage from './components/ServicesPage';
 import BlogPage from './components/BlogPage';
+import ContactPage from './components/ContactPage';
 import { themes } from './context/ThemeContext';
 
 export default function App() {
@@ -19,14 +20,16 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'about':
-        return <AboutPage theme={theme} />;
+        return <AboutPage theme={theme} setCurrentPage={setCurrentPage} />;
       case 'services':
-        return <ServicesPage theme={theme} />;
+        return <ServicesPage theme={theme} setCurrentPage={setCurrentPage} />;
       case 'blog':
-        return <BlogPage theme={theme} />;
+        return <BlogPage theme={theme} setCurrentPage={setCurrentPage} />;
+      case 'contact':
+        return <ContactPage theme={theme} setCurrentPage={setCurrentPage} />;
       case 'home':
       default:
-        return <Hero theme={theme} />;
+        return <HomePage theme={theme} setCurrentPage={setCurrentPage} />;
     }
   };
 

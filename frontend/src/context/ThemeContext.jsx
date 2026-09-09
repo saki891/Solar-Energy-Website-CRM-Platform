@@ -12,6 +12,7 @@ export const themes = {
     green: '#1F5C3E',
     greenHover: '#184A32',
     greenSoft: '#EFF3EC',
+    input: '#FFFFFF',
   },
   dark: {
     bg: '#0E1712',
@@ -24,6 +25,7 @@ export const themes = {
     green: '#3FA46A',
     greenHover: '#4CBE7C',
     greenSoft: '#1C2A21',
+    input: '#101911',
   }
 };
 

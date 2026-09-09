@@ -16,7 +16,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
   ];
 
   const handleNavClick = (id) => {
-    if (['home', 'about', 'services', 'blog'].includes(id)) {
+    if (['home', 'about', 'services', 'blog', 'contact'].includes(id)) {
       setCurrentPage(id);
     }
     setMobileMenuOpen(false);
