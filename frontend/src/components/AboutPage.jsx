@@ -38,22 +38,22 @@ export default function AboutPage({ theme }) {
     {
       name: 'Alex Morgan',
       role: 'Chief Executive Officer',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=60',
     },
     {
       name: 'Elena Rostova',
       role: 'Head of Solar Engineering',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=60',
     },
     {
       name: 'Marcus Vance',
       role: 'Director of Operations',
-      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=60',
     },
     {
       name: 'Sarah Jenkins',
       role: 'Lead Sustainability Advisor',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=60',
     },
   ];
 
@@ -137,8 +137,9 @@ export default function AboutPage({ theme }) {
               style={{ borderColor: theme.border }}
             >
               <img
-                src="https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=800&q=80"
+                src="https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=650&q=65"
                 alt="Solar installation team working on a rooftop"
+                loading="lazy"
                 className="w-full h-full object-cover min-h-[280px]"
               />
             </div>
@@ -302,6 +303,7 @@ export default function AboutPage({ theme }) {
                 <img
                   src={member.avatar}
                   alt={member.name}
+                  loading="lazy"
                   className="h-20 w-20 rounded-full object-cover mb-4 border-4 shadow-sm"
                   style={{ borderColor: theme.greenSoft }}
                 />

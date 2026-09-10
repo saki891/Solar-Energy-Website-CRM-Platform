@@ -311,8 +311,9 @@ export default function ContactPage({ theme }) {
                 style={{ borderColor: theme.border }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=650&q=65"
                   alt="SOLARA Regional Office Building"
+                  loading="lazy"
                   className="w-full h-full object-cover min-h-[160px]"
                 />
 

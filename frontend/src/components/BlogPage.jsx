@@ -10,7 +10,7 @@ export default function BlogPage({ theme }) {
     excerpt: 'Discover how battery storage paired with high-efficiency rooftop solar arrays creates self-sustaining microgrids that keep your property powered during utility grid outages.',
     date: 'Sep 5, 2026',
     readTime: '6 min read',
-    image: 'https://picsum.photos/seed/solara-featured/1200/700',
+    image: 'https://picsum.photos/seed/solara-featured/700/400',
   };
 
   const posts = [
@@ -20,7 +20,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Optimize your home’s HVAC consumption by pairing smart thermostats with peak solar generation hours for maximum financial ROI.',
       date: 'Sep 2, 2026',
       readTime: '4 min read',
-      image: 'https://picsum.photos/seed/solara-post1/800/500',
+      image: 'https://picsum.photos/seed/solara-post1/500/320',
     },
     {
       category: 'Policy',
@@ -28,7 +28,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Navigate the updated clean energy tax credit policies to save up to 30% on your system installation costs.',
       date: 'Aug 28, 2026',
       readTime: '5 min read',
-      image: 'https://picsum.photos/seed/solara-post2/800/500',
+      image: 'https://picsum.photos/seed/solara-post2/500/320',
     },
     {
       category: 'Maintenance',
@@ -36,7 +36,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Essential advice for seasonal panel cleaning, snow removal, shade mitigation, and reading inverter diagnostics.',
       date: 'Aug 20, 2026',
       readTime: '3 min read',
-      image: 'https://picsum.photos/seed/solara-post3/800/500',
+      image: 'https://picsum.photos/seed/solara-post3/500/320',
     },
     {
       category: 'Technology',
@@ -44,7 +44,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'A clear technical breakdown comparing cell efficiency ratings, temperature coefficients, and 25-year degradation rates.',
       date: 'Aug 15, 2026',
       readTime: '7 min read',
-      image: 'https://picsum.photos/seed/solara-post4/800/500',
+      image: 'https://picsum.photos/seed/solara-post4/500/320',
     },
     {
       category: 'Case Study',
@@ -52,7 +52,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'A deep dive into how a 500 kW rooftop solar array transformed operating margins and cash flow for Apex Logistics.',
       date: 'Aug 10, 2026',
       readTime: '5 min read',
-      image: 'https://picsum.photos/seed/solara-post5/800/500',
+      image: 'https://picsum.photos/seed/solara-post5/500/320',
     },
     {
       category: 'Guides',
@@ -60,7 +60,7 @@ export default function BlogPage({ theme }) {
       excerpt: 'Calculate the exact solar kilowatt capacity needed to charge your electric vehicle using 100% clean, self-generated power.',
       date: 'Aug 02, 2026',
       readTime: '6 min read',
-      image: 'https://picsum.photos/seed/solara-post6/800/500',
+      image: 'https://picsum.photos/seed/solara-post6/500/320',
     },
   ];
 
@@ -93,6 +93,7 @@ export default function BlogPage({ theme }) {
               <img
                 src={featuredPost.image}
                 alt={featuredPost.title}
+                loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </div>
@@ -169,6 +170,7 @@ export default function BlogPage({ theme }) {
                     <img
                       src={post.image}
                       alt={post.title}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
