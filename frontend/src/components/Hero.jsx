@@ -178,7 +178,7 @@ export default function Hero({ theme }) {
                 src="/solar-house-hero.jpg"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=1200&q=80";
+                  e.target.src = "https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=900&q=65";
                 }}
                 alt="Modern house with rooftop solar panels at golden-hour sunset"
                 className="w-full h-full object-cover rounded-[28px] border shadow-sm"

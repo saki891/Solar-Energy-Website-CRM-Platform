@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HomePage from './components/HomePage';
 import AboutPage from './components/AboutPage';
@@ -10,6 +10,10 @@ import { themes } from './context/ThemeContext';
 export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   const toggleTheme = () => {
     setIsDark(prev => !prev);
@@ -41,6 +45,12 @@ export default function App() {
         color: theme.text,
       }}
     >
+      <style>{`
+        html, body { scrollbar-width: none; -ms-overflow-style: none; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+      `}</style>
       <Header
         theme={theme}
         isDark={isDark}
