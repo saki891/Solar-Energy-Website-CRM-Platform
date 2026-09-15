@@ -1,39 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import HomePage from './components/HomePage';
-import AboutPage from './components/AboutPage';
-import ServicesPage from './components/ServicesPage';
-import BlogPage from './components/BlogPage';
-import ContactPage from './components/ContactPage';
-import { themes } from './context/ThemeContext';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import DashboardLayout from "./layouts/DashboardLayout";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Customers from "./pages/dashboard/Customers";
+import Leads from "./pages/dashboard/Leads";
+import SiteSurveys from "./pages/dashboard/SiteSurveys";
 
-export default function App() {
+// Public site component imports
+import Header from "./components/Header";
+import HomePage from "./components/HomePage";
+import AboutPage from "./components/AboutPage";
+import ServicesPage from "./components/ServicesPage";
+import ProjectsPage from "./components/ProjectsPage";
+import CalculatorsPage from "./components/CalculatorsPage";
+import BlogPage from "./components/BlogPage";
+import ContactPage from "./components/ContactPage";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
+import ForgotPasswordPage from "./components/ForgotPasswordPage";
+import { themes } from "./context/ThemeContext";
+
+function PublicSite() {
   const [isDark, setIsDark] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home');
+  const location = useLocation();
+
+  const rawPath = (location.pathname + location.hash).replace(/^#\/?/, "").replace(/^\//, "").toLowerCase();
+  const [activePage, setActivePage] = useState(rawPath || "home");
+
+  useEffect(() => {
+    const p = (location.pathname + location.hash).replace(/^#\/?/, "").replace(/^\//, "").toLowerCase();
+    setActivePage(p || "home");
+  }, [location]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [currentPage]);
+  }, [activePage]);
+
+  const navigate = (page) => {
+    const slug = page.toLowerCase();
+    window.location.hash = "/" + slug;
+    setActivePage(slug);
+  };
 
   const toggleTheme = () => {
-    setIsDark(prev => !prev);
+    setIsDark((prev) => !prev);
   };
 
   const theme = isDark ? themes.dark : themes.light;
 
   const renderPage = () => {
-    switch (currentPage) {
-      case 'about':
-        return <AboutPage theme={theme} setCurrentPage={setCurrentPage} />;
-      case 'services':
-        return <ServicesPage theme={theme} setCurrentPage={setCurrentPage} />;
-      case 'blog':
-        return <BlogPage theme={theme} setCurrentPage={setCurrentPage} />;
-      case 'contact':
-        return <ContactPage theme={theme} setCurrentPage={setCurrentPage} />;
-      case 'home':
+    switch (activePage) {
+      case "about":
+      case "about us":
+        return <AboutPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
+      case "services":
+        return <ServicesPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
+      case "projects":
+        return <ProjectsPage theme={theme} navigate={navigate} />;
+      case "calculators":
+        return <CalculatorsPage theme={theme} navigate={navigate} />;
+      case "blog":
+        return <BlogPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
+      case "contact":
+        return <ContactPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
+      case "login":
+        return <LoginPage theme={theme} />;
+      case "signup":
+        return <SignupPage theme={theme} navigate={navigate} />;
+      case "forgot-password":
+      case "forgot password":
+        return <ForgotPasswordPage theme={theme} navigate={navigate} />;
+      case "home":
       default:
-        return <HomePage theme={theme} setCurrentPage={setCurrentPage} />;
+        return <HomePage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
     }
   };
 
@@ -55,12 +94,35 @@ export default function App() {
         theme={theme}
         isDark={isDark}
         toggleTheme={toggleTheme}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        activePage={activePage}
+        currentPage={activePage}
+        navigate={navigate}
+        setCurrentPage={navigate}
       />
-      <main>
-        {renderPage()}
-      </main>
+      <main>{renderPage()}</main>
     </div>
+  );
+}
+
+export default function App() {
+  const [isDark] = useState(false);
+  const theme = isDark ? themes.dark : themes.light;
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Admin Dashboard Nested Routes */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="customers" element={<Customers />} />
+          <Route path="leads" element={<Leads />} />
+          <Route path="site-surveys" element={<SiteSurveys />} />
+        </Route>
+
+        {/* Public Site Routes */}
+        <Route path="/login" element={<LoginPage theme={theme} />} />
+        <Route path="/*" element={<PublicSite />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

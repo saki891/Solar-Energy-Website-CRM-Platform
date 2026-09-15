@@ -37,7 +37,8 @@ function FaqItem({ question, answer, theme }) {
   );
 }
 
-export default function HomePage({ theme, setCurrentPage }) {
+export default function HomePage({ theme, setCurrentPage, navigate }) {
+  const nav = navigate || setCurrentPage;
   const whyUsFeatures = [
     {
       icon: BadgePercent,
@@ -230,7 +231,7 @@ export default function HomePage({ theme, setCurrentPage }) {
 
             <button
               type="button"
-              onClick={() => setCurrentPage('services')}
+              onClick={() => nav('services')}
               className="inline-flex items-center gap-2 font-semibold text-base transition-colors group focus:outline-none self-start sm:self-auto"
               style={{ color: theme.green }}
             >
@@ -377,7 +378,7 @@ export default function HomePage({ theme, setCurrentPage }) {
 
             <button
               type="button"
-              onClick={() => setCurrentPage('blog')}
+              onClick={() => nav('blog')}
               className="inline-flex items-center gap-2 font-semibold text-base transition-colors group focus:outline-none self-start sm:self-auto"
               style={{ color: theme.green }}
             >
@@ -476,7 +477,7 @@ export default function HomePage({ theme, setCurrentPage }) {
 
               <button
                 type="button"
-                onClick={() => setCurrentPage('contact')}
+                onClick={() => nav('contact')}
                 className="mt-8 inline-flex items-center justify-center gap-2.5 font-medium text-base px-7 py-3.5 rounded-full transition-colors text-white focus:outline-none"
                 style={{ backgroundColor: theme.green }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme.greenHover)}

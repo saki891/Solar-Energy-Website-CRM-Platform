@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import DashboardShell from "../../components/dashboard/DashboardShell";
 import PageHeader from "../../components/dashboard/PageHeader";
 import FilterBar from "../../components/dashboard/FilterBar";
 import StatusBadge from "../../components/dashboard/StatusBadge";
@@ -49,12 +48,7 @@ export default function Customers() {
   }
 
   return (
-    <DashboardShell
-      active="Customers"
-      tagline={["Happy Customers,", "Brighter Communities"]}
-      searchPlaceholder="Search customers by name, email or phone..."
-    >
-      <div className="p-5 sm:p-8 space-y-5">
+    <div className="space-y-5">
         <PageHeader
           title="Customers"
           subtitle="Manage your customers and their solar journey."
@@ -167,6 +161,5 @@ export default function Customers() {
           </form>
         </Modal>
       </div>
-    </DashboardShell>
   );
 }

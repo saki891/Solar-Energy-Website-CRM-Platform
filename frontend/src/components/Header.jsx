@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Leaf, ChevronDown, Search, ArrowRight, Menu, X, Sun, Moon } from 'lucide-react';
 
-export default function Header({ theme, isDark, toggleTheme, currentPage, setCurrentPage }) {
+export default function Header({ theme, isDark, toggleTheme, activePage, currentPage, navigate, setCurrentPage }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [calculatorsOpen, setCalculatorsOpen] = useState(false);
+
+  const nav = navigate || setCurrentPage;
+  const current = activePage || currentPage || 'Home';
 
   const navItems = [
     { id: 'home', label: 'Home' },
@@ -16,8 +19,8 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
   ];
 
   const handleNavClick = (id) => {
-    if (['home', 'about', 'services', 'blog', 'contact'].includes(id)) {
-      setCurrentPage(id);
+    if (['home', 'about', 'services', 'projects', 'calculators', 'blog', 'contact'].includes(id)) {
+      nav(id);
     }
     setMobileMenuOpen(false);
   };
@@ -35,8 +38,8 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
         {/* Left: Circular Dark Green Logo Mark + Wordmark & Tagline */}
         <button
           type="button"
-          onClick={() => setCurrentPage('home')}
-          className="flex items-center gap-3 group focus:outline-none text-left"
+          onClick={() => nav('Home')}
+          className="flex items-center gap-3 group focus:outline-none text-left whitespace-nowrap"
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
@@ -61,17 +64,18 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
         </button>
 
         {/* Center: Nav links + Search icon */}
-        <div className="hidden lg:flex items-center gap-6 xl:gap-8">
-          <nav className="flex items-center gap-6 xl:gap-7 text-[15px]">
+        <div className="hidden xl:flex items-center gap-5">
+          <nav className="flex items-center gap-5 text-[15px]">
             {navItems.map((item) => {
-              const isActive = currentPage === item.id;
+              const isActive = current.toLowerCase() === item.id.toLowerCase() || (item.id === 'about' && current.toLowerCase() === 'about us');
 
               if (item.hasDropdown) {
                 return (
                   <div key={item.id} className="relative group">
                     <button
                       type="button"
-                      className="font-medium transition-colors py-1 flex items-center gap-1 focus:outline-none"
+                      onClick={() => handleNavClick('calculators')}
+                      className="font-medium transition-colors py-1 flex items-center gap-1 focus:outline-none whitespace-nowrap"
                       style={{
                         color: isActive ? theme.green : theme.textMuted,
                       }}
@@ -93,7 +97,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                     >
                       <a
                         href="#solar-savings"
-                        className="block px-4 py-2 text-sm transition-colors"
+                        className="block px-4 py-2 text-sm transition-colors whitespace-nowrap"
                         style={{ color: theme.textMuted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = theme.bgAlt;
@@ -108,7 +112,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                       </a>
                       <a
                         href="#roof-calculator"
-                        className="block px-4 py-2 text-sm transition-colors"
+                        className="block px-4 py-2 text-sm transition-colors whitespace-nowrap"
                         style={{ color: theme.textMuted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = theme.bgAlt;
@@ -123,7 +127,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                       </a>
                       <a
                         href="#roi-estimator"
-                        className="block px-4 py-2 text-sm transition-colors"
+                        className="block px-4 py-2 text-sm transition-colors whitespace-nowrap"
                         style={{ color: theme.textMuted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = theme.bgAlt;
@@ -146,7 +150,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                   key={item.id}
                   type="button"
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative py-1 transition-colors ${
+                  className={`relative py-1 transition-colors whitespace-nowrap ${
                     isActive ? 'font-bold' : 'font-medium'
                   }`}
                   style={{
@@ -184,8 +188,8 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
           </button>
         </div>
 
-        {/* Right: Theme Toggle & Get a Free Quote */}
-        <div className="flex items-center gap-3">
+        {/* Right: Theme Toggle, Log In, Sign Up */}
+        <div className="flex items-center gap-2.5">
           {/* Circular Theme Toggle Button */}
           <button
             type="button"
@@ -208,23 +212,46 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
             )}
           </button>
 
-          {/* Get a Free Quote Button */}
-          <a
-            href="#quote"
-            className="hidden sm:inline-flex items-center justify-center gap-2 font-medium text-sm px-5 py-2.5 rounded-full transition-colors text-white"
+          {/* Log In Button (Plain text, green when active) */}
+          <button
+            type="button"
+            onClick={() => nav('Login')}
+            className="hidden xl:inline-flex items-center font-medium text-sm transition-colors py-2 px-3 focus:outline-none whitespace-nowrap"
+            style={{
+              color: current.toLowerCase() === 'login' ? theme.green : theme.textMuted,
+            }}
+            onMouseEnter={(e) => {
+              if (current.toLowerCase() !== 'login') {
+                e.currentTarget.style.color = theme.green;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (current.toLowerCase() !== 'login') {
+                e.currentTarget.style.color = theme.textMuted;
+              }
+            }}
+          >
+            Log In
+          </button>
+
+          {/* Sign Up Button (Filled green pill with right-arrow icon) */}
+          <button
+            type="button"
+            onClick={() => nav('Signup')}
+            className="hidden xl:inline-flex items-center justify-center gap-2 font-medium text-sm px-5 py-2.5 rounded-full transition-colors text-white focus:outline-none whitespace-nowrap"
             style={{ backgroundColor: theme.green }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme.greenHover)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = theme.green)}
           >
-            <span>Get a Free Quote</span>
+            <span>Sign Up</span>
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </button>
 
           {/* Mobile Menu Toggle Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg transition-colors focus:outline-none"
+            className="xl:hidden p-2 rounded-lg transition-colors focus:outline-none"
             style={{ color: theme.text }}
             aria-label="Toggle Navigation Menu"
           >
@@ -240,7 +267,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
         <div
-          className="lg:hidden border-b px-4 pt-2 pb-6 space-y-4 transition-colors"
+          className="xl:hidden border-b px-4 pt-2 pb-6 space-y-4 transition-colors"
           style={{
             backgroundColor: theme.bg,
             borderColor: theme.border,
@@ -248,13 +275,13 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
         >
           <nav className="flex flex-col space-y-1 text-base font-medium">
             {navItems.map((item) => {
-              const isActive = currentPage === item.id;
+              const isActive = current.toLowerCase() === item.id.toLowerCase() || (item.id === 'about' && current.toLowerCase() === 'about us');
               if (item.hasDropdown) {
                 return (
                   <div key={item.id} className="py-2 border-b" style={{ borderColor: `${theme.border}40` }}>
                     <button
                       type="button"
-                      className="w-full flex items-center justify-between text-left"
+                      className="w-full flex items-center justify-between text-left whitespace-nowrap"
                       style={{ color: theme.textMuted }}
                       onClick={() => setCalculatorsOpen(!calculatorsOpen)}
                     >
@@ -267,13 +294,13 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                     </button>
                     {calculatorsOpen && (
                       <div className="pl-4 mt-2 space-y-2 text-sm" style={{ color: theme.textFaint }}>
-                        <a href="#solar-savings" className="block py-1">
+                        <a href="#solar-savings" className="block py-1 whitespace-nowrap">
                           Solar Savings Calculator
                         </a>
-                        <a href="#roof-calculator" className="block py-1">
+                        <a href="#roof-calculator" className="block py-1 whitespace-nowrap">
                           Roof Capacity Calculator
                         </a>
-                        <a href="#roi-estimator" className="block py-1">
+                        <a href="#roi-estimator" className="block py-1 whitespace-nowrap">
                           ROI Estimator
                         </a>
                       </div>
@@ -287,7 +314,7 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                   key={item.id}
                   type="button"
                   onClick={() => handleNavClick(item.id)}
-                  className={`w-full text-left py-2.5 border-b transition-colors ${
+                  className={`w-full text-left py-2.5 border-b transition-colors whitespace-nowrap ${
                     isActive ? 'font-bold' : 'font-medium'
                   }`}
                   style={{
@@ -299,14 +326,51 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                 </button>
               );
             })}
+
+            {/* Mobile Log In Entry */}
+            <button
+              type="button"
+              onClick={() => {
+                nav('Login');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left py-2.5 border-b transition-colors whitespace-nowrap ${
+                current.toLowerCase() === 'login' ? 'font-bold' : 'font-medium'
+              }`}
+              style={{
+                color: current.toLowerCase() === 'login' ? theme.green : theme.textMuted,
+                borderColor: `${theme.border}40`,
+              }}
+            >
+              Log In
+            </button>
+
+            {/* Mobile Sign Up Entry */}
+            <button
+              type="button"
+              onClick={() => {
+                nav('Signup');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left py-2.5 border-b transition-colors flex items-center justify-between whitespace-nowrap ${
+                current.toLowerCase() === 'signup' ? 'font-bold' : 'font-medium'
+              }`}
+              style={{
+                color: current.toLowerCase() === 'signup' ? theme.green : theme.textMuted,
+                borderColor: `${theme.border}40`,
+              }}
+            >
+              <span>Sign Up</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </nav>
 
-          <div className="pt-2 flex items-center justify-between gap-3">
+          <div className="pt-2 flex items-center justify-center">
             {/* Mobile Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium"
               style={{
                 backgroundColor: theme.card,
                 borderColor: theme.border,
@@ -325,17 +389,6 @@ export default function Header({ theme, isDark, toggleTheme, currentPage, setCur
                 </>
               )}
             </button>
-
-            {/* Mobile Get Quote Button */}
-            <a
-              href="#quote"
-              className="flex-1 inline-flex items-center justify-center gap-2 text-white font-medium text-sm px-5 py-2.5 rounded-full transition-colors text-center"
-              style={{ backgroundColor: theme.green }}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span>Get a Free Quote</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
           </div>
         </div>
       )}

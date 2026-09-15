@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export const themes = {
   light: {
@@ -32,16 +32,30 @@ export const themes = {
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [isDark, setIsDark] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("solara-theme");
+    return savedTheme || "light";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    localStorage.setItem("solara-theme", theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    setIsDark(prev => !prev);
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
-  const theme = isDark ? themes.dark : themes.light;
+  const isDark = theme === "dark";
+  const themeObj = isDark ? themes.dark : themes.light;
 
   return (
-    <ThemeContext.Provider value={{ isDark, theme, toggleTheme, themes }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark, themeObj, themes }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -50,7 +64,7 @@ export function ThemeProvider({ children }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 }

@@ -12,7 +12,7 @@ import { leadsOverview } from "../../data/dashboardData";
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-forest-950 text-white text-xs rounded-lg px-3 py-2 shadow-lg">
+      <div className="bg-forest-950 dark:bg-[#0A0F0B] border border-transparent dark:border-[#293227] text-white text-xs rounded-lg px-3 py-2 shadow-lg">
         <p className="font-semibold">{payload[0].value} Leads</p>
         <p className="text-white/60">{label}, 2026</p>
       </div>
@@ -23,13 +23,13 @@ function CustomTooltip({ active, payload, label }) {
 
 export default function LeadsChart() {
   return (
-    <div className="bg-white rounded-2xl border border-line p-5 sm:p-6 flex-1 min-w-0">
+    <div className="bg-white dark:bg-[#17221B] rounded-2xl border border-line dark:border-[#293227] p-5 sm:p-6 flex-1 min-w-0 transition-colors">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-ink-900">Leads Overview</h3>
-        <select className="text-sm border border-line rounded-lg px-3 py-1.5 text-ink-600 bg-white focus:outline-none">
-          <option>Last 30 Days</option>
-          <option>Last 7 Days</option>
-          <option>Last 90 Days</option>
+        <h3 className="font-semibold text-ink-900 dark:text-[#F3F6F1]">Leads Overview</h3>
+        <select className="text-sm border border-line dark:border-[#293227] rounded-lg px-3 py-1.5 text-ink-600 dark:text-[#F3F6F1] bg-white dark:bg-[#17221B] focus:outline-none transition-colors">
+          <option className="dark:bg-[#17221B] dark:text-[#F3F6F1]">Last 30 Days</option>
+          <option className="dark:bg-[#17221B] dark:text-[#F3F6F1]">Last 7 Days</option>
+          <option className="dark:bg-[#17221B] dark:text-[#F3F6F1]">Last 90 Days</option>
         </select>
       </div>
 
@@ -42,7 +42,7 @@ export default function LeadsChart() {
                 <stop offset="100%" stopColor="#24b368" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="#eef2ef" />
+            <CartesianGrid vertical={false} stroke="#293227" opacity={0.3} />
             <XAxis
               dataKey="date"
               tickLine={false}

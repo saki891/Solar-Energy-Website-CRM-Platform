@@ -12,12 +12,12 @@ export default function Pagination({ page = 1, totalPages = 1, showing, onPageCh
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
-      {showing && <p className="text-sm text-ink-400">{showing}</p>}
+      {showing && <p className="text-sm text-ink-400 dark:text-[#8A968C]">{showing}</p>}
       <div className="flex items-center gap-1.5 ml-auto">
         <button
           type="button"
           onClick={() => onPageChange?.(Math.max(1, page - 1))}
-          className="w-8 h-8 grid place-items-center rounded-lg border border-line text-ink-600 hover:bg-[#f4f6f4] disabled:opacity-40"
+          className="w-8 h-8 grid place-items-center rounded-lg border border-line dark:border-[#293227] text-ink-600 dark:text-[#B9C4BB] hover:bg-[#f4f6f4] dark:hover:bg-[#152019] disabled:opacity-40"
           disabled={page === 1}
         >
           <ChevronLeft className="w-4 h-4" />
@@ -25,7 +25,7 @@ export default function Pagination({ page = 1, totalPages = 1, showing, onPageCh
 
         {pages.map((p, i) =>
           p === "..." ? (
-            <span key={`dots-${i}`} className="px-1.5 text-ink-400 text-sm">
+            <span key={`dots-${i}`} className="px-1.5 text-ink-400 dark:text-[#8A968C] text-sm">
               ...
             </span>
           ) : (
@@ -34,7 +34,9 @@ export default function Pagination({ page = 1, totalPages = 1, showing, onPageCh
               type="button"
               onClick={() => onPageChange?.(p)}
               className={`w-8 h-8 grid place-items-center rounded-lg text-sm font-medium transition-colors ${
-                p === page ? "bg-leaf-600 text-white" : "border border-line text-ink-600 hover:bg-[#f4f6f4]"
+                p === page
+                  ? "bg-leaf-600 text-white"
+                  : "border border-line dark:border-[#293227] text-ink-600 dark:text-[#B9C4BB] hover:bg-[#f4f6f4] dark:hover:bg-[#152019]"
               }`}
             >
               {p}
@@ -45,7 +47,7 @@ export default function Pagination({ page = 1, totalPages = 1, showing, onPageCh
         <button
           type="button"
           onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
-          className="w-8 h-8 grid place-items-center rounded-lg border border-line text-ink-600 hover:bg-[#f4f6f4] disabled:opacity-40"
+          className="w-8 h-8 grid place-items-center rounded-lg border border-line dark:border-[#293227] text-ink-600 dark:text-[#B9C4BB] hover:bg-[#f4f6f4] dark:hover:bg-[#152019] disabled:opacity-40"
           disabled={page === totalPages}
         >
           <ChevronRight className="w-4 h-4" />

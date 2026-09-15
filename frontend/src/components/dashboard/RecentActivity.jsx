@@ -9,10 +9,10 @@ const icons = {
 
 export default function RecentActivity() {
   return (
-    <div className="bg-white rounded-2xl border border-line p-5 sm:p-6">
+    <div className="bg-white dark:bg-[#17221B] rounded-2xl border border-line dark:border-[#293227] p-5 sm:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-ink-900">Recent Activity</h3>
-        <button type="button" className="text-sm font-medium text-leaf-600 hover:text-leaf-700">
+        <h3 className="font-semibold text-ink-900 dark:text-[#F3F6F1]">Recent Activity</h3>
+        <button type="button" className="text-sm font-medium text-leaf-600 dark:text-leaf-400 hover:text-leaf-700">
           View All
         </button>
       </div>
@@ -26,10 +26,10 @@ export default function RecentActivity() {
                 <Icon className="w-[16px] h-[16px]" />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-ink-900">{item.title}</p>
-                <p className="text-xs text-ink-400">{item.subtitle}</p>
+                <p className="text-sm font-medium text-ink-900 dark:text-[#F3F6F1]">{item.title}</p>
+                <p className="text-xs text-ink-400 dark:text-[#8A968C]">{item.subtitle}</p>
               </div>
-              <span className="text-xs text-ink-400 whitespace-nowrap">{item.time}</span>
+              <span className="text-xs text-ink-400 dark:text-[#8A968C] whitespace-nowrap">{item.time}</span>
             </li>
           );
         })}

@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { CalendarPlus } from "lucide-react";
-import DashboardShell from "../../components/dashboard/DashboardShell";
+import { CalendarPlus, Download, MoreVertical } from "lucide-react";
 import PageHeader from "../../components/dashboard/PageHeader";
 import Tabs from "../../components/dashboard/Tabs";
 import FilterBar from "../../components/dashboard/FilterBar";
@@ -41,7 +40,6 @@ const emptyForm = {
   assignedTo: surveyors[0],
 };
 
-// Drop this in as a route element directly, e.g. <Route path="/site-surveys" element={<SiteSurveys />} />
 export default function SiteSurveys() {
   const [surveys, setSurveys] = useState(initialSurveys);
   const [activeTab, setActiveTab] = useState("All Surveys");
@@ -89,99 +87,101 @@ export default function SiteSurveys() {
   }
 
   return (
-    <DashboardShell
-      active="Site Surveys"
-      tagline={["On-site Insights,", "For a Brighter Tomorrow"]}
-      searchPlaceholder="Search surveys, customers, location..."
-    >
-      <div className="p-5 sm:p-8 space-y-5">
-        <PageHeader
-          title="Site Surveys"
-          subtitle="Manage and track all site survey requests."
-          actionLabel="Book New Survey"
-          actionIcon={CalendarPlus}
-          onAction={() => setModalOpen(true)}
-        />
+    <div className="space-y-5">
+      <PageHeader
+        title="Site Surveys"
+        subtitle="Manage and track all site survey requests."
+        actionLabel="Book New Survey"
+        actionIcon={CalendarPlus}
+        onAction={() => setModalOpen(true)}
+      />
 
-        <div className="bg-white rounded-2xl border border-line">
-          <div className="px-5 sm:px-6 pt-2">
-            <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
-          </div>
-
-          <div className="p-5 sm:p-6 space-y-5">
-            <FilterBar
-              searchPlaceholder="Search by name or location..."
-              filters={["All Locations", "All Surveyors", "All Status"]}
-            />
-
-            {filtered.length === 0 ? (
-              <p className="text-center text-sm text-ink-400 py-12">No surveys in this status yet.</p>
-            ) : (
-              <div className="overflow-x-auto -mx-2">
-                <table className="w-full text-sm min-w-[920px]">
-                  <thead>
-                    <tr className="text-left text-ink-400 text-xs uppercase tracking-wide">
-                      <th className="px-2 pb-3 font-medium">#</th>
-                      <th className="px-2 pb-3 font-medium">Customer Name</th>
-                      <th className="px-2 pb-3 font-medium">Location</th>
-                      <th className="px-2 pb-3 font-medium">Property Type</th>
-                      <th className="px-2 pb-3 font-medium">Survey Date</th>
-                      <th className="px-2 pb-3 font-medium">Time Slot</th>
-                      <th className="px-2 pb-3 font-medium">Assigned To</th>
-                      <th className="px-2 pb-3 font-medium">Status</th>
-                      <th className="px-2 pb-3 font-medium text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((s, i) => (
-                      <tr key={s.id} className="border-t border-line">
-                        <td className="px-2 py-3 text-ink-400">{i + 1}</td>
-                        <td className="px-2 py-3 font-medium text-ink-900 whitespace-nowrap">{s.customerName}</td>
-                        <td className="px-2 py-3 text-ink-600">{s.location}</td>
-                        <td className="px-2 py-3 text-ink-600">{s.propertyType}</td>
-                        <td className="px-2 py-3 text-ink-600 whitespace-nowrap">{s.surveyDate}</td>
-                        <td className="px-2 py-3 text-ink-600 whitespace-nowrap">{s.timeSlot}</td>
-                        <td className="px-2 py-3 text-ink-600">{s.assignedTo}</td>
-                        <td className="px-2 py-3">
-                          <StatusBadge status={s.status} />
-                        </td>
-                        <td className="px-2 py-3 text-right">
-                          <button type="button" className="text-leaf-600 font-medium hover:underline">
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <Pagination page={1} totalPages={6} showing={`Showing 1 to ${filtered.length} of ${surveys.length} surveys`} />
-          </div>
+      <div className="bg-white rounded-2xl border border-line">
+        <div className="px-5 sm:px-6 pt-2">
+          <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
         </div>
 
-        <Modal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          title="Book New Survey"
-          subtitle="Schedule a site survey for a customer."
-        >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <FormField label="Customer Name" required>
-              <TextInput
-                name="customerName"
-                value={form.customerName}
-                onChange={handleChange}
-                placeholder="e.g. Rohan Patil"
-                required
+        <div className="p-5 sm:p-6 space-y-5">
+          <div className="flex flex-wrap items-center gap-3 justify-between">
+            <div className="flex-1 min-w-[260px]">
+              <FilterBar
+                searchPlaceholder="Search by customer, location or surveyor..."
+                filters={["All Status", "All Surveyors", "All Property Types"]}
               />
-            </FormField>
+            </div>
+            <button
+              type="button"
+              className="flex items-center gap-2 text-sm font-medium border border-line rounded-lg px-4 py-2.5 text-ink-600 hover:bg-[#f4f6f4] transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+          </div>
 
-            <FormField label="Location" required>
-              <TextInput name="location" value={form.location} onChange={handleChange} placeholder="e.g. Mumbai" required />
-            </FormField>
+          <div className="overflow-x-auto border border-line rounded-xl">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-[#f6f8f6] text-ink-500 font-semibold border-b border-line text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="py-3.5 px-4">Customer</th>
+                  <th className="py-3.5 px-4">Location</th>
+                  <th className="py-3.5 px-4">Property</th>
+                  <th className="py-3.5 px-4">Date & Time</th>
+                  <th className="py-3.5 px-4">Assigned To</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line text-ink-800 font-medium">
+                {filtered.map((survey) => (
+                  <tr key={survey.id} className="hover:bg-[#f9faf9] transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-ink-900">{survey.customerName}</td>
+                    <td className="py-3.5 px-4 text-ink-600">{survey.location}</td>
+                    <td className="py-3.5 px-4">{survey.propertyType}</td>
+                    <td className="py-3.5 px-4 text-ink-600 text-xs">
+                      {survey.surveyDate} at {survey.timeSlot}
+                    </td>
+                    <td className="py-3.5 px-4 text-ink-700">{survey.assignedTo}</td>
+                    <td className="py-3.5 px-4">
+                      <StatusBadge status={survey.status} />
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <button type="button" className="p-1 rounded text-ink-400 hover:text-ink-900 transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
+          <Pagination totalItems={filtered.length} itemsPerPage={10} />
+        </div>
+      </div>
+
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Book New Site Survey">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Customer Name">
+            <TextInput
+              name="customerName"
+              placeholder="e.g. Ananya Patil"
+              value={form.customerName}
+              onChange={handleChange}
+              required
+            />
+          </FormField>
+
+          <FormField label="Location / Address">
+            <TextInput
+              name="location"
+              placeholder="e.g. Kothrud, Pune"
+              value={form.location}
+              onChange={handleChange}
+              required
+            />
+          </FormField>
+
+          <div className="grid grid-cols-2 gap-3">
             <FormField label="Property Type">
               <SelectInput
                 name="propertyType"
@@ -191,38 +191,54 @@ export default function SiteSurveys() {
               />
             </FormField>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Survey Date" required>
-                <TextInput type="date" name="surveyDate" value={form.surveyDate} onChange={handleChange} required />
-              </FormField>
+            <FormField label="Assigned Surveyor">
+              <SelectInput
+                name="assignedTo"
+                value={form.assignedTo}
+                onChange={handleChange}
+                options={surveyors}
+              />
+            </FormField>
+          </div>
 
-              <FormField label="Time Slot">
-                <SelectInput name="timeSlot" value={form.timeSlot} onChange={handleChange} options={timeSlots} />
-              </FormField>
-            </div>
-
-            <FormField label="Assigned To">
-              <SelectInput name="assignedTo" value={form.assignedTo} onChange={handleChange} options={surveyors} />
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Survey Date">
+              <TextInput
+                type="date"
+                name="surveyDate"
+                value={form.surveyDate}
+                onChange={handleChange}
+                required
+              />
             </FormField>
 
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="flex-1 border border-line rounded-lg px-4 py-2.5 text-sm font-medium text-ink-600 hover:bg-[#f4f6f4] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex-1 bg-leaf-600 hover:bg-leaf-700 text-white rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
-              >
-                Book Survey
-              </button>
-            </div>
-          </form>
-        </Modal>
-      </div>
-    </DashboardShell>
+            <FormField label="Time Slot">
+              <SelectInput
+                name="timeSlot"
+                value={form.timeSlot}
+                onChange={handleChange}
+                options={timeSlots}
+              />
+            </FormField>
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="flex-1 border border-line rounded-lg px-4 py-2.5 text-sm font-medium text-ink-600 hover:bg-[#f4f6f4] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-leaf-600 hover:bg-leaf-700 text-white rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
+            >
+              Book Survey
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
   );
 }
