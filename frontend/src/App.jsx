@@ -5,6 +5,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Customers from "./pages/dashboard/Customers";
 import Leads from "./pages/dashboard/Leads";
 import SiteSurveys from "./pages/dashboard/SiteSurveys";
+import BlogManagement from "./pages/dashboard/BlogManagement";
 
 // Public site component imports
 import Header from "./components/Header";
@@ -117,6 +118,7 @@ export default function App() {
           <Route path="customers" element={<Customers />} />
           <Route path="leads" element={<Leads />} />
           <Route path="site-surveys" element={<SiteSurveys />} />
+          <Route path="blog" element={<BlogManagement />} />
         </Route>
 
         {/* Public Site Routes */}
