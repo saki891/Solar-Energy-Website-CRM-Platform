@@ -118,7 +118,7 @@ export default function SiteSurveys() {
             </button>
           </div>
 
-          <div className="overflow-x-auto border border-line rounded-xl">
+          <div className="overflow-x-auto no-scrollbar border border-line rounded-xl">
             <table className="w-full text-left text-sm">
               <thead className="bg-[#f6f8f6] text-ink-500 font-semibold border-b border-line text-xs uppercase tracking-wider">
                 <tr>

@@ -6,6 +6,10 @@ import Customers from "./pages/dashboard/Customers";
 import Leads from "./pages/dashboard/Leads";
 import SiteSurveys from "./pages/dashboard/SiteSurveys";
 import BlogManagement from "./pages/dashboard/BlogManagement";
+import Users from "./pages/dashboard/Users";
+import Settings from "./pages/dashboard/Settings";
+import MyProfile from "./pages/dashboard/MyProfile";
+import Calculators from "./pages/dashboard/Calculators";
 
 // Public site component imports
 import Header from "./components/Header";
@@ -14,6 +18,8 @@ import AboutPage from "./components/AboutPage";
 import ServicesPage from "./components/ServicesPage";
 import ProjectsPage from "./components/ProjectsPage";
 import CalculatorsPage from "./components/CalculatorsPage";
+import RoofCapacityCalculator from "./components/RoofCapacityCalculator";
+import ROIEstimator from "./components/ROIEstimator";
 import BlogPage from "./components/BlogPage";
 import ContactPage from "./components/ContactPage";
 import LoginPage from "./components/LoginPage";
@@ -59,7 +65,14 @@ function PublicSite() {
       case "projects":
         return <ProjectsPage theme={theme} navigate={navigate} />;
       case "calculators":
+      case "solar-savings":
         return <CalculatorsPage theme={theme} navigate={navigate} />;
+      case "roof-capacity":
+      case "roof-calculator":
+        return <RoofCapacityCalculator t={theme} theme={theme} />;
+      case "roi-estimator":
+      case "roi":
+        return <ROIEstimator t={theme} theme={theme} />;
       case "blog":
         return <BlogPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
       case "contact":
@@ -119,6 +132,10 @@ export default function App() {
           <Route path="leads" element={<Leads />} />
           <Route path="site-surveys" element={<SiteSurveys />} />
           <Route path="blog" element={<BlogManagement />} />
+          <Route path="calculators" element={<Calculators />} />
+          <Route path="users" element={<Users />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<MyProfile />} />
         </Route>
 
         {/* Public Site Routes */}

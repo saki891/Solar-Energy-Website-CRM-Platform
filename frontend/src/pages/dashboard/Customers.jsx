@@ -63,7 +63,7 @@ export default function Customers() {
             filters={["All Locations", "All Property Types", "All Status"]}
           />
 
-          <div className="overflow-x-auto -mx-2">
+          <div className="overflow-x-auto no-scrollbar -mx-2">
             <table className="w-full text-sm min-w-[860px]">
               <thead>
                 <tr className="text-left text-ink-400 text-xs uppercase tracking-wide">

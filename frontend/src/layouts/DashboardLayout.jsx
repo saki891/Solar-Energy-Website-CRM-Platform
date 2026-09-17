@@ -25,6 +25,7 @@ export default function DashboardLayout() {
     { label: "Calculators", path: "/dashboard/calculators", icon: Calculator },
     { label: "Blog Management", path: "/dashboard/blog", icon: FileText },
     { label: "FAQs", path: "/dashboard/faqs", icon: HelpCircle },
+    { label: "Users", path: "/dashboard/users", icon: Users2 },
   ];
 
   return (

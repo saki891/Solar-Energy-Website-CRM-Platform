@@ -1,5 +1,6 @@
-import { Search, Bell, ChevronDown, Sun, Moon } from "lucide-react";
+import { Search, Bell, Sun, Moon } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
+import ProfileDropdown from "./ProfileDropdown";
 
 export default function Topbar({ searchPlaceholder = "Search leads, customers, projects..." }) {
   const { theme, toggleTheme } = useTheme();
@@ -40,17 +41,8 @@ export default function Topbar({ searchPlaceholder = "Search leads, customers, p
           </span>
         </button>
 
-        {/* Admin Profile */}
-        <button type="button" className="flex items-center gap-2.5 focus:outline-none">
-          <span className="w-9 h-9 rounded-full bg-forest-900 dark:bg-[#1F5C3E] text-white grid place-items-center text-sm font-semibold">
-            AS
-          </span>
-          <span className="hidden sm:block text-left leading-tight">
-            <span className="block text-sm font-medium text-ink-900 dark:text-white">Admin</span>
-            <span className="block text-xs text-ink-400 dark:text-gray-400">admin@solara.com</span>
-          </span>
-          <ChevronDown className="w-4 h-4 text-ink-400 dark:text-gray-400" />
-        </button>
+        {/* Admin Profile Dropdown */}
+        <ProfileDropdown />
       </div>
     </header>
   );

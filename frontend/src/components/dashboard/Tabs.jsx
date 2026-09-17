@@ -1,6 +1,6 @@
 export default function Tabs({ tabs, active, onChange }) {
   return (
-    <div className="flex items-center gap-1 border-b border-line overflow-x-auto">
+    <div className="flex items-center gap-1 border-b border-line overflow-x-auto no-scrollbar">
       {tabs.map((tab) => {
         const isActive = tab.label === active;
         return (

@@ -12,7 +12,7 @@ export default function RecentLeads() {
         </button>
       </div>
 
-      <div className="overflow-x-auto -mx-2">
+      <div className="overflow-x-auto no-scrollbar -mx-2">
         <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="text-left text-ink-400 dark:text-[#8A968C] text-xs uppercase tracking-wide">

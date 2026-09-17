@@ -19,7 +19,7 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
   ];
 
   const handleNavClick = (id) => {
-    if (['home', 'about', 'services', 'projects', 'calculators', 'blog', 'contact'].includes(id)) {
+    if (id) {
       nav(id);
     }
     setMobileMenuOpen(false);
@@ -67,7 +67,11 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
         <div className="hidden xl:flex items-center gap-5">
           <nav className="flex items-center gap-5 text-[15px]">
             {navItems.map((item) => {
-              const isActive = current.toLowerCase() === item.id.toLowerCase() || (item.id === 'about' && current.toLowerCase() === 'about us');
+              const cur = current.toLowerCase();
+              const isActive =
+                cur === item.id.toLowerCase() ||
+                (item.id === 'about' && cur === 'about us') ||
+                (item.id === 'calculators' && ['calculators', 'solar-savings', 'roof-capacity', 'roof-calculator', 'roi-estimator', 'roi'].includes(cur));
 
               if (item.hasDropdown) {
                 return (
@@ -95,9 +99,10 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
                         borderColor: theme.border,
                       }}
                     >
-                      <a
-                        href="#solar-savings"
-                        className="block px-4 py-2 text-sm transition-colors whitespace-nowrap"
+                      <button
+                        type="button"
+                        onClick={() => handleNavClick('solar-savings')}
+                        className="w-full text-left px-4 py-2 text-sm transition-colors whitespace-nowrap cursor-pointer"
                         style={{ color: theme.textMuted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = theme.bgAlt;
@@ -109,10 +114,11 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
                         }}
                       >
                         Solar Savings Calculator
-                      </a>
-                      <a
-                        href="#roof-calculator"
-                        className="block px-4 py-2 text-sm transition-colors whitespace-nowrap"
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNavClick('roof-capacity')}
+                        className="w-full text-left px-4 py-2 text-sm transition-colors whitespace-nowrap cursor-pointer"
                         style={{ color: theme.textMuted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = theme.bgAlt;
@@ -124,10 +130,11 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
                         }}
                       >
                         Roof Capacity Calculator
-                      </a>
-                      <a
-                        href="#roi-estimator"
-                        className="block px-4 py-2 text-sm transition-colors whitespace-nowrap"
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNavClick('roi-estimator')}
+                        className="w-full text-left px-4 py-2 text-sm transition-colors whitespace-nowrap cursor-pointer"
                         style={{ color: theme.textMuted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = theme.bgAlt;
@@ -139,7 +146,7 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
                         }}
                       >
                         ROI Estimator
-                      </a>
+                      </button>
                     </div>
                   </div>
                 );
@@ -275,7 +282,11 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
         >
           <nav className="flex flex-col space-y-1 text-base font-medium">
             {navItems.map((item) => {
-              const isActive = current.toLowerCase() === item.id.toLowerCase() || (item.id === 'about' && current.toLowerCase() === 'about us');
+              const cur = current.toLowerCase();
+              const isActive =
+                cur === item.id.toLowerCase() ||
+                (item.id === 'about' && cur === 'about us') ||
+                (item.id === 'calculators' && ['calculators', 'solar-savings', 'roof-capacity', 'roof-calculator', 'roi-estimator', 'roi'].includes(cur));
               if (item.hasDropdown) {
                 return (
                   <div key={item.id} className="py-2 border-b" style={{ borderColor: `${theme.border}40` }}>
@@ -294,15 +305,27 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
                     </button>
                     {calculatorsOpen && (
                       <div className="pl-4 mt-2 space-y-2 text-sm" style={{ color: theme.textFaint }}>
-                        <a href="#solar-savings" className="block py-1 whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => handleNavClick('solar-savings')}
+                          className="block w-full text-left py-1 whitespace-nowrap cursor-pointer"
+                        >
                           Solar Savings Calculator
-                        </a>
-                        <a href="#roof-calculator" className="block py-1 whitespace-nowrap">
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleNavClick('roof-capacity')}
+                          className="block w-full text-left py-1 whitespace-nowrap cursor-pointer"
+                        >
                           Roof Capacity Calculator
-                        </a>
-                        <a href="#roi-estimator" className="block py-1 whitespace-nowrap">
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleNavClick('roi-estimator')}
+                          className="block w-full text-left py-1 whitespace-nowrap cursor-pointer"
+                        >
                           ROI Estimator
-                        </a>
+                        </button>
                       </div>
                     )}
                   </div>
