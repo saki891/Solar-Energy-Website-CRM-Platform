@@ -94,7 +94,7 @@ export default function ServicesPage({ theme }) {
               style={{ borderColor: theme.border }}
             >
               <img
-                src="https://images.unsplash.com/photo-1611365892117-00ac5ef43c90?auto=format&fit=crop&w=650&q=65"
+                src="https://placehold.co/650x384/EFF3EC/1F5C3E?text=Solar+Technician"
                 alt="Technician installing solar panels"
                 loading="lazy"
                 className="w-full h-full object-cover"

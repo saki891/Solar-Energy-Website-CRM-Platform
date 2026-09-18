@@ -37,7 +37,8 @@ function FaqItem({ question, answer, theme }) {
   );
 }
 
-export default function HomePage({ theme, setCurrentPage }) {
+export default function HomePage({ theme, setCurrentPage, navigate }) {
+  const nav = navigate || setCurrentPage;
   const whyUsFeatures = [
     {
       icon: BadgePercent,
@@ -84,19 +85,19 @@ export default function HomePage({ theme, setCurrentPage }) {
       quote: "Solara transformed our energy bills completely. Our electricity cost dropped by over 80% in the first month alone, and the installation team was incredibly professional.",
       name: "Rajesh Sharma",
       location: "Mumbai, Maharashtra",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=60",
+      avatar: "https://placehold.co/200x200/1F5C3E/FFFFFF?text=RS",
     },
     {
       quote: "From initial site survey to subsidy approval and grid commissioning, Solara handled every permit seamlessly. Best green investment for our manufacturing unit.",
       name: "Ananya Patil",
       location: "Pune, Maharashtra",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=60",
+      avatar: "https://placehold.co/200x200/1F5C3E/FFFFFF?text=AP",
     },
     {
       quote: "The real-time mobile monitoring app gives us total visibility over daily power generation. Highly recommend Solara for any residential solar setup!",
       name: "Vikram Deshmukh",
       location: "Nashik, Maharashtra",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=60",
+      avatar: "https://placehold.co/200x200/1F5C3E/FFFFFF?text=VD",
     },
   ];
 
@@ -105,19 +106,19 @@ export default function HomePage({ theme, setCurrentPage }) {
       category: 'Savings',
       title: '10 Simple Ways Solar Panels Lower Your Heating & Cooling Bills',
       date: 'Sep 2, 2026',
-      image: 'https://picsum.photos/seed/solara-post1/500/320',
+      image: 'https://placehold.co/500x320/EFF3EC/1F5C3E?text=Lower+Bills',
     },
     {
       category: 'Policy',
       title: 'Guide to 2026 Solar Tax Incentives and Federal Rebates',
       date: 'Aug 28, 2026',
-      image: 'https://picsum.photos/seed/solara-post2/500/320',
+      image: 'https://placehold.co/500x320/EFF3EC/1F5C3E?text=Tax+Incentives',
     },
     {
       category: 'Maintenance',
       title: 'How to Maintain Your Solar Panel Efficiency Year-Round',
       date: 'Aug 20, 2026',
-      image: 'https://picsum.photos/seed/solara-post3/500/320',
+      image: 'https://placehold.co/500x320/EFF3EC/1F5C3E?text=Panel+Efficiency',
     },
   ];
 
@@ -230,7 +231,7 @@ export default function HomePage({ theme, setCurrentPage }) {
 
             <button
               type="button"
-              onClick={() => setCurrentPage('services')}
+              onClick={() => nav('services')}
               className="inline-flex items-center gap-2 font-semibold text-base transition-colors group focus:outline-none self-start sm:self-auto"
               style={{ color: theme.green }}
             >
@@ -377,7 +378,7 @@ export default function HomePage({ theme, setCurrentPage }) {
 
             <button
               type="button"
-              onClick={() => setCurrentPage('blog')}
+              onClick={() => nav('blog')}
               className="inline-flex items-center gap-2 font-semibold text-base transition-colors group focus:outline-none self-start sm:self-auto"
               style={{ color: theme.green }}
             >
@@ -476,7 +477,7 @@ export default function HomePage({ theme, setCurrentPage }) {
 
               <button
                 type="button"
-                onClick={() => setCurrentPage('contact')}
+                onClick={() => nav('contact')}
                 className="mt-8 inline-flex items-center justify-center gap-2.5 font-medium text-base px-7 py-3.5 rounded-full transition-colors text-white focus:outline-none"
                 style={{ backgroundColor: theme.green }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme.greenHover)}
