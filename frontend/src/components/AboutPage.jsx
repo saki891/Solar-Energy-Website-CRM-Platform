@@ -38,22 +38,22 @@ export default function AboutPage({ theme }) {
     {
       name: 'Alex Morgan',
       role: 'Chief Executive Officer',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=60',
+      avatar: 'https://placehold.co/200x200/1F5C3E/FFFFFF?text=AM',
     },
     {
       name: 'Elena Rostova',
       role: 'Head of Solar Engineering',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=60',
+      avatar: 'https://placehold.co/200x200/1F5C3E/FFFFFF?text=ER',
     },
     {
       name: 'Marcus Vance',
       role: 'Director of Operations',
-      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=60',
+      avatar: 'https://placehold.co/200x200/1F5C3E/FFFFFF?text=MV',
     },
     {
       name: 'Sarah Jenkins',
       role: 'Lead Sustainability Advisor',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=60',
+      avatar: 'https://placehold.co/200x200/1F5C3E/FFFFFF?text=SJ',
     },
   ];
 
@@ -137,7 +137,7 @@ export default function AboutPage({ theme }) {
               style={{ borderColor: theme.border }}
             >
               <img
-                src="https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=650&q=65"
+                src="https://placehold.co/650x400/EFF3EC/1F5C3E?text=Solar+Installation"
                 alt="Solar installation team working on a rooftop"
                 loading="lazy"
                 className="w-full h-full object-cover min-h-[280px]"

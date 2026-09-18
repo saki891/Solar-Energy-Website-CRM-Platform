@@ -1,7 +1,46 @@
 import React, { useState } from 'react';
-import { Zap, MapPin } from 'lucide-react';
+import { Zap, MapPin, ImageOff } from 'lucide-react';
 import Eyebrow from './Eyebrow';
 import CtaBanner from './CtaBanner';
+
+function ProjectImage({ src, alt, categoryColor }) {
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+
+  return (
+    <div className="relative h-44 w-full overflow-hidden bg-gray-100 dark:bg-white/5">
+      {!errored && (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setErrored(true)}
+          className={`h-full w-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        />
+      )}
+      {(!loaded || errored) && (
+        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: categoryColor || "#EFF3EC" }}>
+          {errored ? <ImageOff className="h-6 w-6 text-gray-400" /> : <div className="h-6 w-6 animate-pulse rounded-full bg-white/40" />}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const getCategoryColor = (category, theme) => {
+  const isDark = theme?.bg === '#0E1712' || (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  switch (category) {
+    case 'Residential':
+      return isDark ? '#192A22' : '#E8F0EC';
+    case 'Commercial':
+      return isDark ? '#2A251B' : '#FDF3E0';
+    case 'Industrial':
+      return isDark ? '#1B2430' : '#E9EEF5';
+    default:
+      return isDark ? '#1C2A21' : '#EFF3EC';
+  }
+};
 
 export default function ProjectsPage({ theme }) {
   const [activeTab, setActiveTab] = useState('All');
@@ -15,7 +54,7 @@ export default function ProjectsPage({ theme }) {
       category: 'Residential',
       location: 'Pune, Maharashtra',
       capacity: '12 kW',
-      image: 'https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=600&q=60',
+      image: 'https://placehold.co/400x280/E8F0EC/1F5C3E?text=Residential+Project',
     },
     {
       id: 2,
@@ -23,7 +62,7 @@ export default function ProjectsPage({ theme }) {
       category: 'Commercial',
       location: 'Navi Mumbai, Maharashtra',
       capacity: '250 kW',
-      image: 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?auto=format&fit=crop&w=600&q=60',
+      image: 'https://placehold.co/400x280/FDF3E0/1F5C3E?text=Commercial+Project',
     },
     {
       id: 3,
@@ -31,7 +70,7 @@ export default function ProjectsPage({ theme }) {
       category: 'Industrial',
       location: 'Nagpur, Maharashtra',
       capacity: '750 kW',
-      image: 'https://images.unsplash.com/photo-1548611716-30018590895a?auto=format&fit=crop&w=600&q=60',
+      image: 'https://placehold.co/400x280/E9EEF5/1F5C3E?text=Industrial+Project',
     },
     {
       id: 4,
@@ -39,7 +78,7 @@ export default function ProjectsPage({ theme }) {
       category: 'Residential',
       location: 'Bengaluru, Karnataka',
       capacity: '45 kW',
-      image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=60',
+      image: 'https://placehold.co/400x280/E8F0EC/1F5C3E?text=Residential+Project',
     },
     {
       id: 5,
@@ -47,7 +86,7 @@ export default function ProjectsPage({ theme }) {
       category: 'Commercial',
       location: 'Hyderabad, Telangana',
       capacity: '180 kW',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=60',
+      image: 'https://placehold.co/400x280/FDF3E0/1F5C3E?text=Commercial+Project',
     },
     {
       id: 6,
@@ -55,7 +94,7 @@ export default function ProjectsPage({ theme }) {
       category: 'Industrial',
       location: 'Ahmedabad, Gujarat',
       capacity: '1.2 MW',
-      image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=60',
+      image: 'https://placehold.co/400x280/E9EEF5/1F5C3E?text=Industrial+Project',
     },
   ];
 
@@ -134,17 +173,13 @@ export default function ProjectsPage({ theme }) {
                 <div>
                   {/* Photo */}
                   <div className="h-44 w-full overflow-hidden relative">
-                    <img
+                    <ProjectImage
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=600&q=60";
-                      }}
+                      categoryColor={getCategoryColor(project.category, theme)}
                     />
                     <span
-                      className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-sm"
+                      className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-sm"
                       style={{
                         backgroundColor: `${theme.card}E6`,
                         color: theme.green,

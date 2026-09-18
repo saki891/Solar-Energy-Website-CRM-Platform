@@ -6,7 +6,8 @@ export default function Header({ theme, isDark, toggleTheme, activePage, current
   const [calculatorsOpen, setCalculatorsOpen] = useState(false);
 
   const nav = navigate || setCurrentPage;
-  const current = activePage || currentPage || 'Home';
+  const rawCurrent = activePage || currentPage || 'home';
+  const current = String(rawCurrent).toLowerCase().trim().replace(/^#\/*/, "").replace(/^\/*/, "");
 
   const navItems = [
     { id: 'home', label: 'Home' },

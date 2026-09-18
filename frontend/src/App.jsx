@@ -10,6 +10,8 @@ import Users from "./pages/dashboard/Users";
 import Settings from "./pages/dashboard/Settings";
 import MyProfile from "./pages/dashboard/MyProfile";
 import Calculators from "./pages/dashboard/Calculators";
+import Projects from "./pages/dashboard/Projects";
+import Faqs from "./pages/dashboard/Faqs";
 
 // Public site component imports
 import Header from "./components/Header";
@@ -31,12 +33,17 @@ function PublicSite() {
   const [isDark, setIsDark] = useState(false);
   const location = useLocation();
 
-  const rawPath = (location.pathname + location.hash).replace(/^#\/?/, "").replace(/^\//, "").toLowerCase();
-  const [activePage, setActivePage] = useState(rawPath || "home");
+  const getPageFromLocation = (loc) => {
+    let hashStr = loc.hash ? loc.hash.replace(/^#\/*/, "") : "";
+    let pathStr = loc.pathname ? loc.pathname.replace(/^\/*/, "") : "";
+    const page = (hashStr || pathStr).toLowerCase().trim();
+    return page || "home";
+  };
+
+  const [activePage, setActivePage] = useState(() => getPageFromLocation(location));
 
   useEffect(() => {
-    const p = (location.pathname + location.hash).replace(/^#\/?/, "").replace(/^\//, "").toLowerCase();
-    setActivePage(p || "home");
+    setActivePage(getPageFromLocation(location));
   }, [location]);
 
   useEffect(() => {
@@ -44,7 +51,8 @@ function PublicSite() {
   }, [activePage]);
 
   const navigate = (page) => {
-    const slug = page.toLowerCase();
+    if (!page) return;
+    const slug = page.toLowerCase().trim().replace(/^#\/*/, "").replace(/^\/*/, "");
     window.location.hash = "/" + slug;
     setActivePage(slug);
   };
@@ -59,6 +67,7 @@ function PublicSite() {
     switch (activePage) {
       case "about":
       case "about us":
+      case "about-us":
         return <AboutPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
       case "services":
         return <ServicesPage theme={theme} navigate={navigate} setCurrentPage={navigate} />;
@@ -66,9 +75,11 @@ function PublicSite() {
         return <ProjectsPage theme={theme} navigate={navigate} />;
       case "calculators":
       case "solar-savings":
+      case "solar-savings-calculator":
         return <CalculatorsPage theme={theme} navigate={navigate} />;
       case "roof-capacity":
       case "roof-calculator":
+      case "roof-capacity-calculator":
         return <RoofCapacityCalculator t={theme} theme={theme} />;
       case "roi-estimator":
       case "roi":
@@ -131,8 +142,10 @@ export default function App() {
           <Route path="customers" element={<Customers />} />
           <Route path="leads" element={<Leads />} />
           <Route path="site-surveys" element={<SiteSurveys />} />
+          <Route path="projects" element={<Projects />} />
           <Route path="blog" element={<BlogManagement />} />
           <Route path="calculators" element={<Calculators />} />
+          <Route path="faqs" element={<Faqs />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
           <Route path="profile" element={<MyProfile />} />

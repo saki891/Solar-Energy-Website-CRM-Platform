@@ -13,7 +13,7 @@ export default function AuthShell({ eyebrow, title, subtitle, children, footer, 
               src="/solar-house-hero.jpg"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=900&q=65";
+                e.target.src = "https://placehold.co/900x600/1F5C3E/FFFFFF?text=SOLARA+Solar+House";
               }}
               alt="Modern house with solar panels"
               className="w-full h-full object-cover"

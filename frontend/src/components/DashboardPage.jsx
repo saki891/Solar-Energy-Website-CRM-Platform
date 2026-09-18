@@ -381,7 +381,7 @@ export default function DashboardPage({ theme, navigate }) {
               </p>
               <div className="mt-4 flex items-center gap-3">
                 <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=60"
+                  src="https://placehold.co/150x150/1F5C3E/FFFFFF?text=ER"
                   alt="Elena Rostova"
                   className="w-10 h-10 rounded-full object-cover border"
                   style={{ borderColor: theme.green }}

@@ -169,7 +169,7 @@ export default function CalculatorsPage({ theme }) {
                     src="/solar-house-hero.jpg"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = "https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=600&q=60";
+                      e.target.src = "https://placehold.co/600x400/1F5C3E/FFFFFF?text=SOLARA+Solar+Panels";
                     }}
                     alt="Solar Panels"
                     className="w-full h-full object-cover"

@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Leaf,
   LayoutDashboard,
@@ -15,18 +15,19 @@ import {
 } from "lucide-react";
 import Topbar from "../components/dashboard/Topbar";
 
+const NAV_ITEMS = [
+  { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
+  { label: "Leads", icon: Users2, to: "/dashboard/leads" },
+  { label: "Customers", icon: UserSquare2, to: "/dashboard/customers" },
+  { label: "Site Surveys", icon: ClipboardCheck, to: "/dashboard/site-surveys" },
+  { label: "Projects", icon: FolderKanban, to: "/dashboard/projects" },
+  { label: "Calculators", icon: Calculator, to: "/dashboard/calculators" },
+  { label: "Blog Management", icon: FileText, to: "/dashboard/blog" },
+  { label: "FAQs", icon: HelpCircle, to: "/dashboard/faqs" },
+];
+
 export default function DashboardLayout() {
-  const navItems = [
-    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, end: true },
-    { label: "Leads", path: "/dashboard/leads", icon: Users2 },
-    { label: "Customers", path: "/dashboard/customers", icon: UserSquare2 },
-    { label: "Site Surveys", path: "/dashboard/site-surveys", icon: ClipboardCheck },
-    { label: "Projects", path: "/dashboard/projects", icon: FolderKanban },
-    { label: "Calculators", path: "/dashboard/calculators", icon: Calculator },
-    { label: "Blog Management", path: "/dashboard/blog", icon: FileText },
-    { label: "FAQs", path: "/dashboard/faqs", icon: HelpCircle },
-    { label: "Users", path: "/dashboard/users", icon: Users2 },
-  ];
+  const navigate = useNavigate();
 
   return (
     <div className="flex min-h-screen bg-[#FBFAF6] dark:bg-[#0E1712] font-sans transition-colors duration-200">
@@ -46,26 +47,21 @@ export default function DashboardLayout() {
 
           {/* Nav List */}
           <nav className="space-y-1.5">
-            {navItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-[#1F5C3E] text-white"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
-                    }`
-                  }
-                >
-                  <IconComponent className="w-4 h-4 flex-shrink-0" />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
+            {NAV_ITEMS.map(({ label, icon: Icon, to }) => (
+              <NavLink
+                key={label}
+                to={to}
+                end={to === "/dashboard"}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                    isActive ? "bg-[#1F5C3E] text-white" : "text-white/70 hover:bg-white/5"
+                  }`
+                }
+              >
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                <span>{label}</span>
+              </NavLink>
+            ))}
           </nav>
         </div>
 
@@ -74,22 +70,21 @@ export default function DashboardLayout() {
           <NavLink
             to="/dashboard/settings"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-[#1F5C3E] text-white"
-                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                isActive ? "bg-[#1F5C3E] text-white" : "text-white/70 hover:bg-white/5"
               }`
             }
           >
-            <Settings className="w-4 h-4 flex-shrink-0" />
+            <Settings className="h-4 w-4 flex-shrink-0" />
             <span>Settings</span>
           </NavLink>
 
           <button
             type="button"
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors text-left focus:outline-none"
+            onClick={() => navigate("/login")}
+            className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/70 hover:bg-white/5 transition-colors text-left focus:outline-none cursor-pointer"
           >
-            <LogOut className="w-4 h-4 flex-shrink-0" />
+            <LogOut className="h-4 w-4 flex-shrink-0" />
             <span>Logout</span>
           </button>
         </div>

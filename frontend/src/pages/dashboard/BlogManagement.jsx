@@ -31,7 +31,7 @@ const INITIAL_POSTS = [
     excerpt:
       "Discover how battery storage paired with high-efficiency rooftop solar arrays creates self-sustaining microgrids during utility grid outages.",
     coverImage:
-      "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80",
+      "https://placehold.co/600x400/EFF3EC/1F5C3E?text=Technology+Article",
   },
   {
     id: 2,
@@ -43,7 +43,7 @@ const INITIAL_POSTS = [
     excerpt:
       "Optimize your home's HVAC consumption by pairing smart thermostats with peak solar generation hours for maximum ROI.",
     coverImage:
-      "https://images.unsplash.com/photo-1508873696983-2df515122519?w=600&auto=format&fit=crop&q=80",
+      "https://placehold.co/600x400/EFF3EC/1F5C3E?text=Savings+Article",
   },
   {
     id: 3,
@@ -55,7 +55,7 @@ const INITIAL_POSTS = [
     excerpt:
       "Navigate the updated clean energy tax credit policies to save up to 30% on your system installation costs.",
     coverImage:
-      "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600&auto=format&fit=crop&q=80",
+      "https://placehold.co/600x400/EFF3EC/1F5C3E?text=Policy+Guide",
   },
   {
     id: 4,
@@ -67,7 +67,7 @@ const INITIAL_POSTS = [
     excerpt:
       "Essential advice for seasonal panel cleaning, shade mitigation, inverter diagnostics, and wire inspection.",
     coverImage:
-      "https://images.unsplash.com/photo-1548611635-b6e7827d7d4a?w=600&auto=format&fit=crop&q=80",
+      "https://placehold.co/600x400/EFF3EC/1F5C3E?text=Maintenance+Checklist",
   },
   {
     id: 5,
@@ -79,7 +79,7 @@ const INITIAL_POSTS = [
     excerpt:
       "Calculate the exact solar kilowatt capacity needed to charge your electric vehicle using 100% clean, self-generated power.",
     coverImage:
-      "https://images.unsplash.com/photo-1558441719-670b357024bf?w=600&auto=format&fit=crop&q=80",
+      "https://placehold.co/600x400/EFF3EC/1F5C3E?text=EV+Charging",
   },
   {
     id: 6,
@@ -91,7 +91,7 @@ const INITIAL_POSTS = [
     excerpt:
       "A deep dive into how a 500 kW rooftop solar array transformed operating margins and cash flow for a regional hub.",
     coverImage:
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
+      "https://placehold.co/600x400/EFF3EC/1F5C3E?text=Case+Study",
   },
 ];
 
