@@ -1,9 +1,9 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { leadsBySource } from "../../data/dashboardData";
 
-const total = leadsBySource.reduce((sum, s) => sum + s.value, 0);
+export default function SourceDonut({ data = leadsBySource }) {
+  const total = data.reduce((sum, s) => sum + s.value, 0);
 
-export default function SourceDonut() {
   return (
     <div className="bg-white dark:bg-[#17221B] rounded-2xl border border-line dark:border-[#293227] p-5 sm:p-6 w-full lg:w-[360px] shrink-0">
       <h3 className="font-semibold text-ink-900 dark:text-[#F3F6F1] mb-4">Leads by Source</h3>
@@ -13,7 +13,7 @@ export default function SourceDonut() {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={leadsBySource}
+                data={data}
                 dataKey="value"
                 nameKey="name"
                 innerRadius={52}
@@ -21,7 +21,7 @@ export default function SourceDonut() {
                 paddingAngle={2}
                 stroke="none"
               >
-                {leadsBySource.map((entry) => (
+                {data.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
@@ -34,7 +34,7 @@ export default function SourceDonut() {
         </div>
 
         <ul className="space-y-2.5 text-sm flex-1">
-          {leadsBySource.map((s) => (
+          {data.map((s) => (
             <li key={s.name} className="flex items-center justify-between gap-3">
               <span className="flex items-center gap-2 text-ink-600 dark:text-[#B9C4BB]">
                 <span

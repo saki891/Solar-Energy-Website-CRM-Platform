@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 
-export default function Modal({ open, title, subtitle, onClose, children }) {
+export default function Modal({ open, isOpen, title, subtitle, onClose, children }) {
+  const visible = open ?? isOpen;
+
   useEffect(() => {
-    if (!open) return;
+    if (!visible) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -11,9 +13,9 @@ export default function Modal({ open, title, subtitle, onClose, children }) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
+  }, [visible, onClose]);
 
-  if (!open) return null;
+  if (!visible) return null;
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center p-4">

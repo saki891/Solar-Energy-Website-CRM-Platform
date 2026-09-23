@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Eyebrow from "./Eyebrow";
+import { calculatorService } from "../services/calculatorService";
 
 export default function RoofCapacityCalculator(props) {
   const theme = props.t || props.theme || {
@@ -30,27 +31,31 @@ export default function RoofCapacityCalculator(props) {
   const [orientation, setOrientation] = useState("South-facing");
   const [calculated, setCalculated] = useState(false);
   const [results, setResults] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleCalculate = (e) => {
+  const handleCalculate = async (e) => {
     e.preventDefault();
-    const numArea = parseFloat(roofArea) || 0;
-    const shadingFactor = { None: 1, Partial: 0.8, Heavy: 0.55 }[shading] || 1;
-    const orientationFactor =
-      { "South-facing": 1, "East/West-facing": 0.88, "North-facing": 0.65 }[
-        orientation
-      ] || 1;
+    setError("");
+    setIsSubmitting(true);
 
-    const usableArea = numArea * shadingFactor * orientationFactor;
-    const panelCount = Math.max(1, Math.floor(usableArea / 17.5));
-    const systemSizeKW = Math.round(panelCount * 0.4 * 10) / 10;
-    const annualGeneration = Math.round(systemSizeKW * 1400);
-
-    setResults({
-      panelCount,
-      systemSizeKW,
-      annualGeneration,
-    });
-    setCalculated(true);
+    try {
+      const estimate = await calculatorService.calculateRoofCapacity({
+        roofArea,
+        shading,
+        orientation,
+      });
+      setResults({
+        panelCount: estimate.panel_count,
+        systemSizeKW: estimate.system_size_kw,
+        annualGeneration: estimate.annual_generation,
+      });
+      setCalculated(true);
+    } catch (err) {
+      setError(err.message || "Unable to calculate roof capacity right now.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -87,6 +92,12 @@ export default function RoofCapacityCalculator(props) {
             }}
           >
             <form onSubmit={handleCalculate} className="space-y-6">
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
               {/* Field 1: Total Roof Area */}
               <div className="flex flex-col space-y-2">
                 <label
@@ -178,6 +189,7 @@ export default function RoofCapacityCalculator(props) {
               {/* Calculate Button */}
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full inline-flex items-center justify-center gap-2.5 font-medium text-base px-7 py-4 rounded-full text-white transition-all duration-200 mt-2 focus:outline-none cursor-pointer"
                 style={{ backgroundColor: theme.green }}
                 onMouseEnter={(e) =>
@@ -187,7 +199,7 @@ export default function RoofCapacityCalculator(props) {
                   (e.currentTarget.style.backgroundColor = theme.green)
                 }
               >
-                <span>Calculate Roof Capacity</span>
+                <span>{isSubmitting ? "Calculating..." : "Calculate Roof Capacity"}</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
 
