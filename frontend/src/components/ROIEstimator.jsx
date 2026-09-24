@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Eyebrow from "./Eyebrow";
+import { calculatorService } from "../services/calculatorService";
 
 export default function ROIEstimator(props) {
   const theme = props.t || props.theme || {
@@ -30,31 +31,32 @@ export default function ROIEstimator(props) {
   const [subsidy, setSubsidy] = useState("78000");
   const [calculated, setCalculated] = useState(false);
   const [results, setResults] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleCalculate = (e) => {
+  const handleCalculate = async (e) => {
     e.preventDefault();
-    const sizeKW = parseFloat(systemSize) || 0;
-    const mSavings = parseFloat(monthlySavings) || 0;
-    const subAmt = parseFloat(subsidy) || 0;
+    setError("");
+    setIsSubmitting(true);
 
-    const grossCost = sizeKW * 55000;
-    const netInvestment = Math.max(0, grossCost - subAmt);
-    const annualSavings = mSavings * 12;
-    const paybackYears =
-      annualSavings > 0
-        ? Math.round((netInvestment / annualSavings) * 10) / 10
-        : 0;
-    const lifetimeSavings = Math.round(annualSavings * 25 - netInvestment);
-    const roiPercent =
-      netInvestment > 0 ? Math.round((lifetimeSavings / netInvestment) * 100) : 0;
-
-    setResults({
-      netInvestment,
-      paybackYears,
-      lifetimeSavings,
-      roiPercent,
-    });
-    setCalculated(true);
+    try {
+      const estimate = await calculatorService.calculateRoi({
+        systemSizeKW: systemSize,
+        monthlySavings,
+        subsidy,
+      });
+      setResults({
+        netInvestment: estimate.net_investment,
+        paybackYears: estimate.payback_years,
+        lifetimeSavings: estimate.lifetime_savings,
+        roiPercent: estimate.roi_percent,
+      });
+      setCalculated(true);
+    } catch (err) {
+      setError(err.message || "Unable to estimate ROI right now.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -91,6 +93,12 @@ export default function ROIEstimator(props) {
             }}
           >
             <form onSubmit={handleCalculate} className="space-y-6">
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
               {/* Field 1: System Size */}
               <div className="flex flex-col space-y-2">
                 <label
@@ -172,6 +180,7 @@ export default function ROIEstimator(props) {
               {/* Estimate Button */}
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full inline-flex items-center justify-center gap-2.5 font-medium text-base px-7 py-4 rounded-full text-white transition-all duration-200 mt-2 focus:outline-none cursor-pointer"
                 style={{ backgroundColor: theme.green }}
                 onMouseEnter={(e) =>
@@ -181,7 +190,7 @@ export default function ROIEstimator(props) {
                   (e.currentTarget.style.backgroundColor = theme.green)
                 }
               >
-                <span>Estimate My ROI</span>
+                <span>{isSubmitting ? "Estimating..." : "Estimate My ROI"}</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
 

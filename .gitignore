@@ -141,3 +141,45 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+*.egg-info/
+
+# Python tooling and test output
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Local IDE and OS files
+.idea/
+.history/
+.fleet/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Local developer configuration
+.python-version
+*.local
+
+# Backend runtime files
+*.pid
+*.seed

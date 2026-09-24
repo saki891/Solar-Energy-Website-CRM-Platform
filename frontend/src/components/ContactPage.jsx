@@ -2,29 +2,52 @@ import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Send, CheckCircle2 } from 'lucide-react';
 import Eyebrow from './Eyebrow';
 import CtaBanner from './CtaBanner';
+import { leadService } from '../services/leadService';
 
 export default function ContactPage({ theme }) {
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
     email: '',
+    location: '',
     message: '',
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ fullName: '', phone: '', email: '', message: '' });
-    }, 4000);
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      await leadService.createLead({
+        name: formData.fullName,
+        contact: formData.phone || formData.email,
+        phone: formData.phone,
+        email: formData.email,
+        location: formData.location,
+        propertyType: 'Residential',
+        source: 'Website',
+        notes: formData.message,
+      });
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ fullName: '', phone: '', email: '', location: '', message: '' });
+      }, 4000);
+    } catch (err) {
+      setError(err.message || 'Unable to send your message right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -87,6 +110,11 @@ export default function ContactPage({ theme }) {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {error}
+                    </div>
+                  )}
                   
                   {/* 2-Column Input Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -165,6 +193,29 @@ export default function ContactPage({ theme }) {
                     />
                   </div>
 
+                  <div className="flex flex-col space-y-2">
+                    <label
+                      className="text-sm font-semibold"
+                      style={{ color: theme.text }}
+                    >
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      required
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="e.g. Pune, Maharashtra"
+                      className="rounded-xl px-4 py-3 border text-sm font-medium transition-colors focus:outline-none focus:ring-2"
+                      style={{
+                        backgroundColor: theme.input,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      }}
+                    />
+                  </div>
+
                   {/* Message Textarea (5 rows) */}
                   <div className="flex flex-col space-y-2">
                     <label
@@ -193,12 +244,13 @@ export default function ContactPage({ theme }) {
                   <div>
                     <button
                       type="submit"
+                      disabled={isSubmitting}
                       className="inline-flex items-center justify-center gap-2.5 font-medium text-base px-7 py-3.5 rounded-full transition-colors text-white focus:outline-none"
                       style={{ backgroundColor: theme.green }}
                       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme.greenHover)}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = theme.green)}
                     >
-                      <span>Send Message</span>
+                      <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
                       <Send className="w-4 h-4" />
                     </button>
                   </div>

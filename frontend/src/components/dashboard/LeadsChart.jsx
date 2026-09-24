@@ -21,7 +21,7 @@ function CustomTooltip({ active, payload, label }) {
   return null;
 }
 
-export default function LeadsChart() {
+export default function LeadsChart({ data = leadsOverview }) {
   return (
     <div className="bg-white dark:bg-[#17221B] rounded-2xl border border-line dark:border-[#293227] p-5 sm:p-6 flex-1 min-w-0 transition-colors">
       <div className="flex items-center justify-between mb-4">
@@ -35,7 +35,7 @@ export default function LeadsChart() {
 
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={leadsOverview} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="leadsFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#24b368" stopOpacity={0.35} />

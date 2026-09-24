@@ -1,30 +1,57 @@
 import React, { useState } from 'react';
 import { ArrowRight, ShieldCheck, Zap, TrendingUp, Clock, Leaf, CheckCircle2 } from 'lucide-react';
 import Eyebrow from './Eyebrow';
+import { calculatorService } from '../services/calculatorService';
 
 export default function CalculatorsPage({ theme }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [bill, setBill] = useState('5000');
   const [propertyType, setPropertyType] = useState('Residential');
   const [roofArea, setRoofArea] = useState('800');
   const [calculated, setCalculated] = useState(false);
   const [results, setResults] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [savedNotice, setSavedNotice] = useState('');
 
-  const handleCalculate = (e) => {
+  const handleCalculate = async (e) => {
     e.preventDefault();
-    const numBill = parseFloat(bill) || 0;
-    const units = numBill / 8;
-    const systemSizeKW = Math.max(1, Math.round((units / 120) * 10) / 10);
-    const annualSavings = Math.round(numBill * 12 * 0.85);
-    const paybackYears = Math.round(((systemSizeKW * 55000) / (annualSavings || 1)) * 10) / 10;
-    const co2Tons = Math.round((systemSizeKW * 1.2) * 10) / 10;
+    setError('');
+    setSavedNotice('');
+    setIsSubmitting(true);
 
-    setResults({
-      systemSizeKW,
-      annualSavings,
-      paybackYears,
-      co2Tons,
-    });
-    setCalculated(true);
+    try {
+      const estimate = await calculatorService.calculateSavings({
+        monthlyBill: bill,
+        roofArea,
+      });
+      const normalized = {
+        systemSizeKW: estimate.system_size_kw,
+        annualSavings: estimate.annual_savings,
+        paybackYears: estimate.payback_years,
+        co2Tons: estimate.co2_tons,
+      };
+
+      await calculatorService.submitCalculator({
+        name,
+        phone,
+        email,
+        propertyType,
+        monthlyBill: bill,
+        roofArea,
+        ...normalized,
+      });
+
+      setResults(normalized);
+      setCalculated(true);
+      setSavedNotice('Estimate saved. Our solar team can follow up from the CRM.');
+    } catch (err) {
+      setError(err.message || 'Unable to calculate your savings right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,6 +87,74 @@ export default function CalculatorsPage({ theme }) {
             }}
           >
             <form onSubmit={handleCalculate} className="space-y-6">
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+              {savedNotice && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                  {savedNotice}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-2">
+                  <label className="text-sm font-medium" style={{ color: theme.text }}>
+                    Full name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Rahul Verma"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3.5 rounded-xl border text-base outline-none transition-all duration-200"
+                    style={{
+                      backgroundColor: theme.input,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-2">
+                  <label className="text-sm font-medium" style={{ color: theme.text }}>
+                    Phone number
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="w-full px-4 py-3.5 rounded-xl border text-base outline-none transition-all duration-200"
+                    style={{
+                      backgroundColor: theme.input,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm font-medium" style={{ color: theme.text }}>
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  placeholder="rahul@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3.5 rounded-xl border text-base outline-none transition-all duration-200"
+                  style={{
+                    backgroundColor: theme.input,
+                    borderColor: theme.border,
+                    color: theme.text,
+                  }}
+                />
+              </div>
               
               {/* Field 1: Monthly Electricity Bill */}
               <div className="flex flex-col space-y-2">
@@ -137,12 +232,13 @@ export default function CalculatorsPage({ theme }) {
               {/* Calculate Button */}
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full inline-flex items-center justify-center gap-2.5 font-medium text-base px-7 py-4 rounded-full text-white transition-all duration-200 mt-2 focus:outline-none"
                 style={{ backgroundColor: theme.green }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme.greenHover)}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = theme.green)}
               >
-                <span>Calculate My Savings</span>
+                <span>{isSubmitting ? 'Calculating...' : 'Calculate My Savings'}</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
 

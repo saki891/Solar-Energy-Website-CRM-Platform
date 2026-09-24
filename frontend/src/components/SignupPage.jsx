@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import AuthShell from './AuthShell';
 import { FormField } from './FormField';
+import { authService } from '../services/authService';
 
 export default function SignupPage({ theme, navigate }) {
   const [fullName, setFullName] = useState('');
@@ -9,11 +10,30 @@ export default function SignupPage({ theme, navigate }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Signup submitted:', { fullName, email, phone, password, agreed });
-    navigate('Home');
+    setError('');
+    setSuccess('');
+    setIsSubmitting(true);
+
+    try {
+      await authService.register({ fullName, email, phone, password });
+      setSuccess('Account created successfully. You can log in now.');
+      setFullName('');
+      setEmail('');
+      setPhone('');
+      setPassword('');
+      setAgreed(false);
+      setTimeout(() => navigate('Login'), 1200);
+    } catch (err) {
+      setError(err.message || 'Unable to create your account right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const footer = (
@@ -39,6 +59,17 @@ export default function SignupPage({ theme, navigate }) {
       theme={theme}
     >
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            {success}
+          </div>
+        )}
+
         <FormField
           label="Full name"
           type="text"
@@ -107,12 +138,13 @@ export default function SignupPage({ theme, navigate }) {
         {/* Full-width filled green pill Create Account button */}
         <button
           type="submit"
+          disabled={isSubmitting || !agreed}
           className="w-full inline-flex items-center justify-center gap-2.5 font-medium text-base px-6 py-3.5 rounded-full text-white transition-all duration-200 mt-2 focus:outline-none"
           style={{ backgroundColor: theme.green }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme.greenHover)}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = theme.green)}
         >
-          <span>Create Account</span>
+          <span>{isSubmitting ? 'Creating account...' : 'Create Account'}</span>
           <ArrowRight className="w-5 h-5" />
         </button>
       </form>

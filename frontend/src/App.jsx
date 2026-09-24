@@ -27,6 +27,7 @@ import ContactPage from "./components/ContactPage";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import ForgotPasswordPage from "./components/ForgotPasswordPage";
+import { DashboardDataProvider } from "./context/DashboardDataContext";
 import { themes } from "./context/ThemeContext";
 
 function PublicSite() {
@@ -135,26 +136,28 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Admin Dashboard Nested Routes */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="customers" element={<Customers />} />
-          <Route path="leads" element={<Leads />} />
-          <Route path="site-surveys" element={<SiteSurveys />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="blog" element={<BlogManagement />} />
-          <Route path="calculators" element={<Calculators />} />
-          <Route path="faqs" element={<Faqs />} />
-          <Route path="users" element={<Users />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="profile" element={<MyProfile />} />
-        </Route>
+      <DashboardDataProvider>
+        <Routes>
+          {/* Admin Dashboard Nested Routes */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="leads" element={<Leads />} />
+            <Route path="site-surveys" element={<SiteSurveys />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="blog" element={<BlogManagement />} />
+            <Route path="calculators" element={<Calculators />} />
+            <Route path="faqs" element={<Faqs />} />
+            <Route path="users" element={<Users />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="profile" element={<MyProfile />} />
+          </Route>
 
-        {/* Public Site Routes */}
-        <Route path="/login" element={<LoginPage theme={theme} />} />
-        <Route path="/*" element={<PublicSite />} />
-      </Routes>
+          {/* Public Site Routes */}
+          <Route path="/login" element={<LoginPage theme={theme} />} />
+          <Route path="/*" element={<PublicSite />} />
+        </Routes>
+      </DashboardDataProvider>
     </BrowserRouter>
   );
 }

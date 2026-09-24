@@ -1,10 +1,31 @@
-import { Search, Bell, Sun, Moon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, Bell, Sun, Moon, X } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import ProfileDropdown from "./ProfileDropdown";
+
+const initialNotifications = [
+  { id: 1, title: "New lead added", message: "Rohan Patil was created from the website form.", time: "2 min ago", read: false },
+  { id: 2, title: "Site survey updated", message: "Sneha Sharma moved to completed status.", time: "18 min ago", read: false },
+  { id: 3, title: "Project reminder", message: "Green Valley Residence needs a review today.", time: "1 hour ago", read: true },
+];
 
 export default function Topbar({ searchPlaceholder = "Search leads, customers, projects..." }) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState(initialNotifications);
+
+  const unreadCount = useMemo(
+    () => items.filter((item) => !item.read).length,
+    [items]
+  );
+
+  function handleToggleNotifications() {
+    setOpen((prev) => !prev);
+    if (!open) {
+      setItems((prev) => prev.map((item) => ({ ...item, read: true })));
+    }
+  }
 
   return (
     <header className="flex items-center gap-4 px-5 sm:px-8 py-4 bg-white dark:bg-[#152019] border-b border-line dark:border-[#293227] sticky top-0 z-10 transition-colors duration-200">
@@ -18,7 +39,6 @@ export default function Topbar({ searchPlaceholder = "Search leads, customers, p
       </div>
 
       <div className="ml-auto flex items-center gap-3 sm:gap-4">
-        {/* Theme Toggle Button */}
         <button
           type="button"
           onClick={toggleTheme}
@@ -33,15 +53,54 @@ export default function Topbar({ searchPlaceholder = "Search leads, customers, p
           )}
         </button>
 
-        {/* Notification Bell */}
-        <button type="button" className="relative w-9 h-9 grid place-items-center rounded-full bg-[#f4f6f4] dark:bg-[#0E1712] border border-transparent dark:border-[#293227] hover:bg-line dark:hover:bg-[#293227] transition-colors">
-          <Bell className="w-[18px] h-[18px] text-ink-600 dark:text-gray-200" />
-          <span className="absolute -top-0.5 -right-0.5 w-[18px] h-[18px] grid place-items-center rounded-full bg-red-500 text-white text-[10px] font-semibold">
-            3
-          </span>
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={handleToggleNotifications}
+            className="relative w-9 h-9 grid place-items-center rounded-full bg-[#f4f6f4] dark:bg-[#0E1712] border border-transparent dark:border-[#293227] hover:bg-line dark:hover:bg-[#293227] transition-colors"
+            aria-label="Notifications"
+            title="Notifications"
+          >
+            <Bell className="w-[18px] h-[18px] text-ink-600 dark:text-gray-200" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-[18px] h-[18px] grid place-items-center rounded-full bg-red-500 text-white text-[10px] font-semibold">
+                {unreadCount}
+              </span>
+            )}
+          </button>
 
-        {/* Admin Profile Dropdown */}
+          {open && (
+            <div className="absolute right-0 top-12 w-80 rounded-2xl border border-line bg-white dark:bg-[#17221B] shadow-xl z-20 overflow-hidden">
+              <div className="flex items-center justify-between border-b border-line px-4 py-3">
+                <h3 className="text-sm font-semibold text-ink-900 dark:text-white">Notifications</h3>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded p-1 text-ink-500 hover:bg-[#f4f6f4] dark:hover:bg-[#0E1712]"
+                  aria-label="Close notifications"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="max-h-80 overflow-y-auto">
+                {items.map((item) => (
+                  <div key={item.id} className={`border-b border-line px-4 py-3 last:border-b-0 ${item.read ? "opacity-75" : "bg-[#f7faf7] dark:bg-[#0f1a14]"}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-ink-900 dark:text-white">{item.title}</p>
+                        <p className="mt-1 text-xs text-ink-600 dark:text-[#B9C4BB]">{item.message}</p>
+                      </div>
+                      {!item.read && <span className="mt-1 h-2.5 w-2.5 rounded-full bg-red-500" />}
+                    </div>
+                    <p className="mt-2 text-[11px] text-ink-500 dark:text-[#8A968C]">{item.time}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <ProfileDropdown />
       </div>
     </header>
