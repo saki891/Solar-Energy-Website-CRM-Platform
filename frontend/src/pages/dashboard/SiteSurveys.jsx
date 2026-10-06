@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarPlus, Download, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CalendarPlus, Download, MoreVertical, Pencil, Trash2, CheckCircle2, UserCheck } from "lucide-react";
 import PageHeader from "../../components/dashboard/PageHeader";
 import Tabs from "../../components/dashboard/Tabs";
 import FilterBar from "../../components/dashboard/FilterBar";
@@ -10,10 +11,13 @@ import { FormField, TextInput, SelectInput } from "../../components/dashboard/Fo
 import { surveyTabOrder } from "../../data/dashboardData";
 import { todayISO } from "../../utils/dashboardDate";
 import { surveyService } from "../../services/surveyService";
+import { customerService } from "../../services/customerService";
+import { useDashboardData } from "../../context/DashboardDataContext";
 
 const tabFilterMap = {
   "All Surveys": null,
   Scheduled: "Scheduled",
+  "In Progress": "In Progress",
   Completed: "Completed",
   Cancelled: "Cancelled",
 };
@@ -33,6 +37,7 @@ const timeSlots = [
 const surveyors = ["Rahul", "Priya", "Karan", "Neha"];
 
 const emptyForm = {
+  customerId: "",
   customerName: "",
   location: "",
   propertyType: "Residential",
@@ -40,10 +45,16 @@ const emptyForm = {
   timeSlot: timeSlots[0],
   assignedTo: surveyors[0],
   status: "Scheduled",
+  roofInformation: "",
+  capacityEstimate: "",
+  notes: "",
 };
 
 export default function SiteSurveys() {
+  const navigate = useNavigate();
+  const { refreshToken, notifyCrmChange } = useDashboardData();
   const [surveys, setSurveys] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [tabCounts, setTabCounts] = useState({});
   const [activeTab, setActiveTab] = useState("All Surveys");
   const [searchValue, setSearchValue] = useState("");
@@ -68,6 +79,15 @@ export default function SiteSurveys() {
       })),
     [tabCounts]
   );
+
+  async function loadCustomers() {
+    try {
+      const res = await customerService.getCustomers({ limit: 100 });
+      setCustomers(res.items || []);
+    } catch (e) {
+      console.error("Failed to load customer list for selector:", e);
+    }
+  }
 
   async function loadSurveys() {
     setLoading(true);
@@ -128,12 +148,33 @@ export default function SiteSurveys() {
   }
 
   useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  useEffect(() => {
     loadSurveys();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, searchValue, statusFilter, surveyorFilter, propertyFilter]);
+  }, [activeTab, searchValue, statusFilter, surveyorFilter, propertyFilter, refreshToken]);
 
   function handleChange(e) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  }
+
+  function handleCustomerSelect(e) {
+    const val = e.target.value;
+    const cid = val ? Number(val) : null;
+    const chosen = customers.find((c) => c.id === cid);
+    if (chosen) {
+      setForm((f) => ({
+        ...f,
+        customerId: chosen.id,
+        customerName: chosen.name,
+        location: chosen.location || f.location,
+        propertyType: chosen.propertyType || f.propertyType,
+      }));
+    } else {
+      setForm((f) => ({ ...f, customerId: "" }));
+    }
   }
 
   function openCreateModal() {
@@ -146,6 +187,7 @@ export default function SiteSurveys() {
   function openEditModal(survey) {
     setEditingSurvey(survey);
     setForm({
+      customerId: survey.customerId || "",
       customerName: survey.customerName || "",
       location: survey.location || "",
       propertyType: survey.propertyType || "Residential",
@@ -153,9 +195,25 @@ export default function SiteSurveys() {
       timeSlot: survey.timeSlot || timeSlots[0],
       assignedTo: survey.assignedTo || surveyors[0],
       status: survey.status || "Scheduled",
+      roofInformation: survey.roofInformation || "",
+      capacityEstimate: survey.capacityEstimate || "",
+      notes: survey.notes || "",
     });
     setModalOpen(true);
     setOpenMenuId(null);
+  }
+
+  async function handleMarkComplete(survey) {
+    setSaving(true);
+    try {
+      await surveyService.updateSurvey(survey.id, { status: "Completed" });
+      notifyCrmChange("site_surveys");
+      await loadSurveys();
+    } catch (err) {
+      setLoadError(err.message || "Failed to update survey.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleSubmit(e) {
@@ -166,6 +224,7 @@ export default function SiteSurveys() {
 
     try {
       const payload = {
+        customerId: form.customerId ? Number(form.customerId) : undefined,
         customerName: form.customerName.trim(),
         location: form.location.trim(),
         propertyType: form.propertyType,
@@ -173,6 +232,9 @@ export default function SiteSurveys() {
         timeSlot: form.timeSlot,
         assignedTo: form.assignedTo,
         status: editingSurvey ? form.status : "Scheduled",
+        roofInformation: form.roofInformation,
+        capacityEstimate: form.capacityEstimate,
+        notes: form.notes,
       };
 
       if (editingSurvey) {
@@ -181,6 +243,7 @@ export default function SiteSurveys() {
         await surveyService.createSurvey(payload);
       }
 
+      notifyCrmChange("site_surveys");
       setForm(emptyForm);
       setModalOpen(false);
       setEditingSurvey(null);
@@ -200,6 +263,7 @@ export default function SiteSurveys() {
     setLoadError("");
     try {
       await surveyService.deleteSurvey(survey.id);
+      notifyCrmChange("site_surveys");
       setOpenMenuId(null);
       await loadSurveys();
     } catch (err) {
@@ -283,7 +347,7 @@ export default function SiteSurveys() {
             <table className="w-full text-left text-sm">
               <thead className="bg-[#f6f8f6] dark:bg-[#0E1712] text-ink-500 dark:text-[#B9C4BB] font-semibold border-b border-line dark:border-[#293227] text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-4">Customer</th>
+                  <th className="py-3.5 px-4">Customer & CRM Link</th>
                   <th className="py-3.5 px-4">Location</th>
                   <th className="py-3.5 px-4">Property</th>
                   <th className="py-3.5 px-4">Date & Time</th>
@@ -309,7 +373,22 @@ export default function SiteSurveys() {
                 )}
                 {!loading && filtered.map((survey) => (
                   <tr key={survey.id} className="hover:bg-[#f9faf9] dark:hover:bg-[#152019] transition-colors">
-                    <td className="py-3.5 px-4 font-semibold text-ink-900 dark:text-[#F3F6F1]">{survey.customerName}</td>
+                    <td className="py-3.5 px-4 font-semibold text-ink-900 dark:text-[#F3F6F1]">
+                      <div>{survey.customerName}</div>
+                      {survey.customerId && (
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/dashboard/customers?id=${survey.customerId}`)}
+                          className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium text-leaf-600 dark:text-leaf-400 hover:underline cursor-pointer"
+                        >
+                          <UserCheck className="w-3 h-3" />
+                          Customer #{survey.customerId}
+                        </button>
+                      )}
+                      {survey.leadId && (
+                        <span className="text-[11px] text-ink-400 block">From Lead #{survey.leadId}</span>
+                      )}
+                    </td>
                     <td className="py-3.5 px-4 text-ink-600 dark:text-[#B9C4BB]">{survey.location}</td>
                     <td className="py-3.5 px-4">{survey.propertyType}</td>
                     <td className="py-3.5 px-4 text-ink-600 dark:text-[#B9C4BB] text-xs">
@@ -320,15 +399,29 @@ export default function SiteSurveys() {
                       <StatusBadge status={survey.status} />
                     </td>
                     <td className="relative py-3.5 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setOpenMenuId((currentId) => (currentId === survey.id ? null : survey.id))}
-                        className="p-1 rounded text-ink-400 hover:text-ink-900 dark:hover:text-[#F3F6F1] transition-colors"
-                        aria-label={`Actions for ${survey.customerName}`}
-                        aria-expanded={openMenuId === survey.id}
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {(survey.status === "Scheduled" || survey.status === "In Progress") && (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkComplete(survey)}
+                            disabled={saving}
+                            className="inline-flex items-center gap-1 text-xs bg-leaf-600 hover:bg-leaf-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                            title="Mark survey completed"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Complete
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setOpenMenuId((currentId) => (currentId === survey.id ? null : survey.id))}
+                          className="p-1.5 rounded-lg text-ink-400 hover:text-ink-900 dark:hover:text-[#F3F6F1] transition-colors"
+                          aria-label={`Actions for ${survey.customerName}`}
+                          aria-expanded={openMenuId === survey.id}
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                      </div>
                       {openMenuId === survey.id && (
                         <div className="absolute right-4 top-10 z-20 w-32 rounded-lg border border-line dark:border-[#293227] bg-white dark:bg-[#17221B] py-1 text-left shadow-lg">
                           <button
@@ -366,7 +459,23 @@ export default function SiteSurveys() {
         title={editingSurvey ? "Edit Site Survey" : "Book New Site Survey"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FormField label="Customer Name">
+          <FormField label="Select Customer from CRM">
+            <select
+              name="customerId"
+              value={form.customerId || ""}
+              onChange={handleCustomerSelect}
+              className="w-full text-sm border border-line dark:border-[#293227] rounded-lg px-3 py-2.5 bg-white dark:bg-[#17221B] text-ink-900 dark:text-[#F3F6F1] focus:outline-none"
+            >
+              <option value="">-- Choose Existing Customer (Optional) --</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  #{c.id} - {c.name} ({c.location})
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          <FormField label="Customer Name" required>
             <TextInput
               name="customerName"
               placeholder="e.g. Ananya Patil"
@@ -378,7 +487,7 @@ export default function SiteSurveys() {
             />
           </FormField>
 
-          <FormField label="Location / Address">
+          <FormField label="Location / Address" required>
             <TextInput
               name="location"
               placeholder="e.g. Kothrud, Pune"
@@ -410,6 +519,34 @@ export default function SiteSurveys() {
             </FormField>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Roof Information">
+              <TextInput
+                name="roofInformation"
+                placeholder="e.g. Flat RCC roof"
+                value={form.roofInformation}
+                onChange={handleChange}
+              />
+            </FormField>
+            <FormField label="Capacity Estimate">
+              <TextInput
+                name="capacityEstimate"
+                placeholder="e.g. 10 kW"
+                value={form.capacityEstimate}
+                onChange={handleChange}
+              />
+            </FormField>
+          </div>
+
+          <FormField label="Survey Notes">
+            <TextInput
+              name="notes"
+              placeholder="Special instructions or customer access notes"
+              value={form.notes}
+              onChange={handleChange}
+            />
+          </FormField>
+
           {editingSurvey && (
             <FormField label="Status">
               <SelectInput
@@ -422,7 +559,7 @@ export default function SiteSurveys() {
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Survey Date">
+            <FormField label="Survey Date" required>
               <TextInput
                 type="date"
                 name="surveyDate"
@@ -433,7 +570,7 @@ export default function SiteSurveys() {
               />
             </FormField>
 
-            <FormField label="Time Slot">
+            <FormField label="Time Slot" required>
               <SelectInput
                 name="timeSlot"
                 value={form.timeSlot}

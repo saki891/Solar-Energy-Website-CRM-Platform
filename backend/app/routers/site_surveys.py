@@ -12,9 +12,11 @@ from app.dependencies.auth import get_optional_current_user, is_staff_user, requ
 from app.models.user import User
 from app.models.customer import Customer
 from app.models.project import Project
+from app.models.lead import Lead
 from app.models.site_survey import SiteSurvey
 from app.schemas.site_survey import SiteSurveyCreate, SiteSurveyUpdate, SiteSurveyResponse, SiteSurveyListResponse
 from app.schemas.common import APIResponse
+from app.services.crm_service import CRMService
 
 router = APIRouter(prefix="/site-surveys", tags=["Site Surveys Management"])
 
@@ -23,6 +25,7 @@ STAFF_ROLES = ["Admin", "Manager", "Sales Rep", "Support"]
 NULLABLE_SURVEY_FIELDS = {
     "customer_id",
     "project_id",
+    "lead_id",
     "assigned_user_id",
     "roof_information",
     "capacity_estimate",
@@ -52,6 +55,14 @@ def validate_project_reference(db: Session, project_id: Optional[int]) -> None:
     exists = db.query(Project.id).filter(Project.id == project_id).first()
     if not exists:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project not found")
+
+
+def validate_lead_reference(db: Session, lead_id: Optional[int]) -> None:
+    if lead_id is None:
+        return
+    exists = db.query(Lead.id).filter(Lead.id == lead_id).first()
+    if not exists:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Lead not found")
 
 
 def apply_survey_update(survey: SiteSurvey, update_data: dict) -> None:
@@ -193,10 +204,17 @@ def create_survey(
     if is_staff:
         validate_customer_reference(db, request.customer_id)
         validate_project_reference(db, request.project_id)
+        validate_lead_reference(db, request.lead_id)
         validate_user_reference(db, request.assigned_user_id)
 
+    customer_name = request.customer_name.strip()
+    if request.customer_id:
+        cust = db.query(Customer).filter(Customer.id == request.customer_id).first()
+        if cust:
+            customer_name = cust.name
+
     survey = SiteSurvey(
-        customer_name=request.customer_name.strip(),
+        customer_name=customer_name,
         location=request.location.strip(),
         property_type=request.property_type,
         survey_date=request.survey_date.strip(),
@@ -205,18 +223,40 @@ def create_survey(
         status=request.status or "Scheduled",
         customer_id=request.customer_id if is_staff else None,
         project_id=request.project_id if is_staff else None,
+        lead_id=request.lead_id if is_staff else None,
         assigned_user_id=request.assigned_user_id if is_staff else None,
         roof_information=request.roof_information,
         capacity_estimate=request.capacity_estimate,
         notes=request.notes,
     )
     db.add(survey)
+    db.flush()
+
+    CRMService.record_activity(
+        db=db,
+        entity_type="site_survey",
+        entity_id=survey.id,
+        action="scheduled",
+        title=f"Site survey scheduled for {survey.customer_name}",
+        description=f"Survey on {survey.survey_date} at {survey.time_slot} assigned to {survey.assigned_to}",
+        customer_id=survey.customer_id,
+        customer_name=survey.customer_name,
+        user_id=current_user.id if current_user else None,
+        status_val=survey.status,
+    )
+
+    # If linked to lead, move lead to Site Survey
+    if survey.lead_id:
+        lead = db.query(Lead).filter(Lead.id == survey.lead_id).first()
+        if lead and lead.status in ["New", "Contacted"]:
+            lead.status = "Site Survey"
+
     db.commit()
     db.refresh(survey)
     return APIResponse(
         success=True,
         message="Site survey booked successfully",
-        data=SiteSurveyResponse.model_validate(survey)
+        data=SiteSurveyResponse.model_validate(survey),
     )
 
 
@@ -251,18 +291,55 @@ def update_survey(
     if not survey:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site survey not found")
 
+    old_status = survey.status
     update_data = request.model_dump(exclude_unset=True)
     validate_customer_reference(db, update_data.get("customer_id"))
     validate_project_reference(db, update_data.get("project_id"))
+    validate_lead_reference(db, update_data.get("lead_id"))
     validate_user_reference(db, update_data.get("assigned_user_id"))
     apply_survey_update(survey, update_data)
+
+    new_status = survey.status
+
+    if new_status != old_status:
+        action_name = "completed" if new_status == "Completed" else "status_changed"
+        CRMService.record_activity(
+            db=db,
+            entity_type="site_survey",
+            entity_id=survey.id,
+            action=action_name,
+            title=f"Site survey {new_status.lower()} for {survey.customer_name}",
+            description=f"Status changed from {old_status} to {new_status}. Roof info: {survey.roof_information or 'N/A'}",
+            customer_id=survey.customer_id,
+            customer_name=survey.customer_name,
+            user_id=current_user.id,
+            status_val=new_status,
+        )
+
+        # When survey completed, update linked lead if in Site Survey stage
+        if new_status == "Completed" and survey.lead_id:
+            lead = db.query(Lead).filter(Lead.id == survey.lead_id).first()
+            if lead and lead.status == "Site Survey":
+                lead.status = "Quoted"
+                CRMService.record_activity(
+                    db=db,
+                    entity_type="lead",
+                    entity_id=lead.id,
+                    action="status_changed",
+                    title=f"Lead moved to Quoted: {lead.name}",
+                    description="Survey completed; quote prepared for customer",
+                    customer_id=survey.customer_id,
+                    customer_name=survey.customer_name,
+                    user_id=current_user.id,
+                    status_val="Quoted",
+                )
 
     db.commit()
     db.refresh(survey)
     return APIResponse(
         success=True,
         message="Site survey updated successfully",
-        data=SiteSurveyResponse.model_validate(survey)
+        data=SiteSurveyResponse.model_validate(survey),
     )
 
 

@@ -32,4 +32,9 @@ export const projectService = {
     const response = await apiRequest(`/projects/${id}`, { method: "DELETE" });
     return unwrapData(response);
   },
+
+  async getProjectRelatedData(id) {
+    const response = await apiRequest(`/projects/${id}/related-data`);
+    return unwrapData(response);
+  },
 };
