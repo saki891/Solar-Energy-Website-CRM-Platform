@@ -305,7 +305,7 @@ def update_customer(
 @router.delete(
     "/{customer_id}",
     response_model=APIResponse[bool],
-    summary="Delete customer",
+    summary="Inactivate customer (soft transition preserving history)",
 )
 def delete_customer(
     customer_id: int,
@@ -316,6 +316,19 @@ def delete_customer(
     if not customer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
 
-    db.delete(customer)
+    customer.status = "Inactive"
+    CRMService.record_activity(
+        db=db,
+        entity_type="customer",
+        entity_id=customer.id,
+        action="inactivated",
+        title=f"Customer marked inactive: {customer.name}",
+        description="Customer marked as Inactive; CRM history preserved",
+        customer_id=customer.id,
+        customer_name=customer.name,
+        user_id=current_user.id,
+        status_val="Inactive",
+    )
     db.commit()
-    return APIResponse(success=True, message="Customer deleted successfully", data=True)
+    return APIResponse(success=True, message="Customer marked inactive successfully (history preserved)", data=True)
+

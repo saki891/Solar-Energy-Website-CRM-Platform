@@ -63,6 +63,13 @@ class SiteSurveyCreate(SiteSurveyBase):
     assigned_user_id: Optional[int] = Field(default=None, ge=1)
 
 
+class SiteSurveyCompleteRequest(BaseModel):
+    roof_information: Optional[str] = Field(default=None, max_length=2000)
+    capacity_estimate: Optional[str] = Field(default=None, max_length=50)
+    notes: Optional[str] = Field(default=None, max_length=2000)
+
+
+
 class SiteSurveyUpdate(BaseModel):
     customer_name: Optional[str] = Field(default=None, min_length=2, max_length=150)
     location: Optional[str] = Field(default=None, min_length=2, max_length=150)

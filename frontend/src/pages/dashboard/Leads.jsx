@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, MoreVertical, Plus, Trash2, Calendar, CheckCircle2, UserCheck, Briefcase } from "lucide-react";
+import { Download, MoreVertical, Plus, Calendar, CheckCircle2, UserCheck, Briefcase } from "lucide-react";
 import PageHeader from "../../components/dashboard/PageHeader";
 import Tabs from "../../components/dashboard/Tabs";
 import FilterBar from "../../components/dashboard/FilterBar";
@@ -20,8 +20,10 @@ const tabFilterMap = {
   "Site Survey": "Site Survey",
   Quoted: "Quoted",
   Converted: "Converted",
+  Cancelled: "Cancelled",
   Lost: "Lost",
 };
+
 
 const propertyTypeOptions = ["All Property Types", "Residential", "Commercial", "Industrial"];
 const locationOptions = ["All Locations", "Mumbai", "Pune", "Nashik", "Thane", "Nagpur", "Solapur"];
@@ -36,7 +38,8 @@ const sourceOptions = [
   "Social Media",
   "Direct Enquiry",
 ];
-const statusOptions = ["All Status", "New", "Contacted", "Site Survey", "Quoted", "Converted", "Lost"];
+const statusOptions = ["All Status", "New", "Contacted", "Site Survey", "Quoted", "Converted", "Cancelled", "Lost"];
+
 
 const emptyForm = {
   name: "",
@@ -309,22 +312,30 @@ export default function Leads() {
     }
   }
 
-  async function handleDelete() {
-    if (!editingLead || !window.confirm("Delete this lead?")) return;
+  async function handleCancelLead(lead, statusVal = "Cancelled") {
+    const targetStatus = statusVal === "Lost" ? "Lost" : "Cancelled";
+    const promptMsg = targetStatus === "Lost"
+      ? `Mark lead '${lead.name}' as Lost? CRM history will be preserved.`
+      : `Cancel lead '${lead.name}'? CRM history will be preserved.`;
+    if (!window.confirm(promptMsg)) return;
     setSaving(true);
     setError("");
+    setSuccessMsg("");
     try {
-      await leadService.deleteLead(editingLead.id);
+      await leadService.cancelLead(lead.id, targetStatus);
+      setSuccessMsg(`Lead '${lead.name}' marked as ${targetStatus}.`);
       notifyCrmChange("leads");
+      notifyCrmChange("customers");
       setModalOpen(false);
       setEditingLead(null);
       await loadLeads(page);
     } catch (err) {
-      setError(err.message || "Unable to delete lead.");
+      setError(err.message || `Unable to cancel lead.`);
     } finally {
       setSaving(false);
     }
   }
+
 
   return (
     <div className="space-y-5">
@@ -426,52 +437,117 @@ export default function Leads() {
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        {/* Stage 1: New -> Contact */}
                         {lead.status === "New" && (
-                          <button
-                            type="button"
-                            onClick={() => handleContactLead(lead)}
-                            disabled={saving}
-                            className="inline-flex items-center gap-1 text-xs bg-leaf-600 hover:bg-leaf-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-                            title="Contact lead and create/link customer"
-                          >
-                            <UserCheck className="w-3.5 h-3.5" />
-                            Contact
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleContactLead(lead)}
+                              disabled={saving}
+                              className="inline-flex items-center gap-1 text-xs bg-leaf-600 hover:bg-leaf-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Contact lead and create/link customer"
+                            >
+                              <UserCheck className="w-3.5 h-3.5" />
+                              Contact
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCancelLead(lead, "Cancelled")}
+                              disabled={saving}
+                              className="text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 border border-red-200 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Cancel lead"
+                            >
+                              Cancel
+                            </button>
+                          </>
                         )}
-                        {(lead.status === "Contacted" || lead.status === "New") && (
-                          <button
-                            type="button"
-                            onClick={() => openScheduleModal(lead)}
-                            disabled={saving}
-                            className="inline-flex items-center gap-1 text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-                            title="Schedule site survey"
-                          >
-                            <Calendar className="w-3.5 h-3.5" />
-                            Survey
-                          </button>
+
+                        {/* Stage 2: Contacted -> Schedule Site Survey */}
+                        {lead.status === "Contacted" && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => openScheduleModal(lead)}
+                              disabled={saving}
+                              className="inline-flex items-center gap-1 text-xs bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Schedule site survey for customer"
+                            >
+                              <Calendar className="w-3.5 h-3.5" />
+                              Schedule Survey
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCancelLead(lead, "Lost")}
+                              disabled={saving}
+                              className="text-xs text-ink-500 hover:bg-line/40 border border-line px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Mark lead as Lost"
+                            >
+                              Lost
+                            </button>
+                          </>
                         )}
-                        {(lead.status === "Site Survey" || lead.status === "Quoted" || lead.status === "Contacted") && (
-                          <button
-                            type="button"
-                            onClick={() => openConvertModal(lead)}
-                            disabled={saving}
-                            className="inline-flex items-center gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-                            title="Convert lead to project"
-                          >
-                            <Briefcase className="w-3.5 h-3.5" />
-                            Convert
-                          </button>
+
+                        {/* Stage 3: Site Survey (In Progress) -> View Survey Link */}
+                        {lead.status === "Site Survey" && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => navigate("/dashboard/site-surveys")}
+                              className="inline-flex items-center gap-1 text-xs bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 px-2.5 py-1.5 rounded-lg hover:bg-amber-100 transition-colors cursor-pointer"
+                              title="Survey is scheduled/in progress. Complete it on Site Surveys page to advance lead to Quoted."
+                            >
+                              <Calendar className="w-3.5 h-3.5" />
+                              Survey In Progress
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCancelLead(lead, "Cancelled")}
+                              disabled={saving}
+                              className="text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 border border-red-200 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Cancel lead"
+                            >
+                              Cancel
+                            </button>
+                          </>
                         )}
+
+                        {/* Stage 4: Quoted -> Convert to Project */}
+                        {lead.status === "Quoted" && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => openConvertModal(lead)}
+                              disabled={saving}
+                              className="inline-flex items-center gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Convert quoted lead to active solar installation project"
+                            >
+                              <Briefcase className="w-3.5 h-3.5" />
+                              Convert to Project
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCancelLead(lead, "Lost")}
+                              disabled={saving}
+                              className="text-xs text-ink-500 hover:bg-line/40 border border-line px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Mark lead as Lost"
+                            >
+                              Lost
+                            </button>
+                          </>
+                        )}
+
+                        {/* Stage 5: Converted -> View Project Link */}
                         {lead.status === "Converted" && (
                           <button
                             type="button"
                             onClick={() => navigate("/dashboard/projects")}
-                            className="inline-flex items-center gap-1 text-xs text-leaf-600 dark:text-leaf-400 border border-leaf-300 dark:border-leaf-700/60 px-2.5 py-1.5 rounded-lg hover:bg-leaf-50 dark:hover:bg-leaf-950/30 transition-colors"
+                            className="inline-flex items-center gap-1 text-xs text-leaf-600 dark:text-leaf-400 border border-leaf-300 dark:border-leaf-700/60 px-2.5 py-1.5 rounded-lg hover:bg-leaf-50 dark:hover:bg-leaf-950/30 transition-colors cursor-pointer font-medium"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            Project
+                            View Project
                           </button>
                         )}
+
                         <button
                           type="button"
                           onClick={() => openEditModal(lead)}
@@ -524,22 +600,15 @@ export default function Leads() {
             </FormField>
           </div>
 
-          {editingLead && (
-            <FormField label="Status">
-              <SelectInput name="status" value={form.status} onChange={handleChange} options={statusOptions.filter((option) => option !== "All Status")} />
-            </FormField>
-          )}
-
           <div className="flex items-center gap-3 pt-2">
-            {editingLead && (
+            {editingLead && editingLead.status !== "Converted" && editingLead.status !== "Cancelled" && editingLead.status !== "Lost" && (
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => handleCancelLead(editingLead, "Cancelled")}
                 disabled={saving}
-                className="inline-flex items-center gap-2 border border-red-200 rounded-lg px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 border border-red-200 rounded-lg px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50"
               >
-                <Trash2 className="w-4 h-4" />
-                Delete
+                Cancel Lead
               </button>
             )}
             <button
@@ -547,16 +616,17 @@ export default function Leads() {
               disabled={saving}
               className="bg-[#1F5C3E] hover:bg-[#184A32] dark:bg-[#3FA46A] dark:hover:bg-[#4CBE7C] text-white dark:text-[#0E1712] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Details"}
             </button>
             <button
               type="button"
               onClick={() => setModalOpen(false)}
               className="ml-auto border border-line dark:border-[#293227] rounded-lg px-4 py-2.5 text-sm font-medium text-ink-600 dark:text-[#B9C4BB] hover:bg-[#f4f6f4] dark:hover:bg-[#152019] transition-colors"
             >
-              Cancel
+              Close
             </button>
           </div>
+
         </form>
       </Modal>
 

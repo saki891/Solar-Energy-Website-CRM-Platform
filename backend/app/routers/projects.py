@@ -137,7 +137,7 @@ def create_project(
         location=request.location.strip(),
         capacity=request.capacity.strip(),
         capacity_kw=request.capacity_kw,
-        status=request.status or "In Progress",
+        status=request.status or "Planning",
         customer_id=request.customer_id,
         source_lead_id=request.source_lead_id,
         assigned_user_id=request.assigned_user_id,
@@ -165,7 +165,7 @@ def create_project(
         entity_id=project.id,
         action="created",
         title=f"Project created: {project.name}",
-        description=f"Capacity: {project.capacity}, Customer: {cust_name}",
+        description=f"Capacity: {project.capacity}, Customer: {cust_name} (Status: {project.status})",
         customer_id=project.customer_id,
         customer_name=cust_name,
         user_id=current_user.id,
@@ -176,6 +176,97 @@ def create_project(
     db.refresh(project)
 
     return APIResponse(success=True, message="Project created successfully", data=build_project_response(project))
+
+
+@router.post(
+    "/{project_id}/start",
+    response_model=APIResponse[ProjectResponse],
+    summary="Start project (transitions Planning -> In Progress)",
+)
+def start_project(
+    project_id: int,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    project = CRMService.project_start_workflow(db, project_id, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Project started successfully",
+        data=build_project_response(project),
+    )
+
+
+@router.post(
+    "/{project_id}/hold",
+    response_model=APIResponse[ProjectResponse],
+    summary="Put project on hold (transitions In Progress -> On Hold)",
+)
+def hold_project(
+    project_id: int,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    project = CRMService.project_hold_workflow(db, project_id, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Project put on hold",
+        data=build_project_response(project),
+    )
+
+
+@router.post(
+    "/{project_id}/resume",
+    response_model=APIResponse[ProjectResponse],
+    summary="Resume project (transitions On Hold -> In Progress)",
+)
+def resume_project(
+    project_id: int,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    project = CRMService.project_resume_workflow(db, project_id, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Project resumed successfully",
+        data=build_project_response(project),
+    )
+
+
+@router.post(
+    "/{project_id}/complete",
+    response_model=APIResponse[ProjectResponse],
+    summary="Complete project (transitions In Progress -> Completed)",
+)
+def complete_project(
+    project_id: int,
+    actual_cost: Optional[float] = Query(None),
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    project = CRMService.project_complete_workflow(db, project_id, actual_cost, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Project completed successfully",
+        data=build_project_response(project),
+    )
+
+
+@router.post(
+    "/{project_id}/cancel",
+    response_model=APIResponse[ProjectResponse],
+    summary="Cancel project (soft transition preserving history)",
+)
+def cancel_project(
+    project_id: int,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    project = CRMService.project_cancel_workflow(db, project_id, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Project cancelled successfully",
+        data=build_project_response(project),
+    )
 
 
 @router.get(
@@ -214,29 +305,27 @@ def update_project(
 
     old_status = project.status
     update_data = request.model_dump(exclude_unset=True)
+    target_status = update_data.get("status")
+
+    if target_status and target_status != old_status:
+        CRMService.validate_project_transition(old_status, target_status)
+        if target_status == "In Progress":
+            if old_status == "On Hold":
+                project = CRMService.project_resume_workflow(db, project_id, current_user.id)
+            else:
+                project = CRMService.project_start_workflow(db, project_id, current_user.id)
+        elif target_status == "On Hold":
+            project = CRMService.project_hold_workflow(db, project_id, current_user.id)
+        elif target_status == "Completed":
+            project = CRMService.project_complete_workflow(db, project_id, update_data.get("actual_cost"), current_user.id)
+        elif target_status == "Cancelled":
+            project = CRMService.project_cancel_workflow(db, project_id, current_user.id)
+        update_data.pop("status", None)
+
     validate_customer_reference(db, update_data.get("customer_id"))
     validate_lead_reference(db, update_data.get("source_lead_id"))
     validate_user_reference(db, update_data.get("assigned_user_id"))
     apply_project_update(project, update_data)
-
-    new_status = project.status
-    cust_name = project.customer.name if project.customer else ""
-
-    if new_status != old_status:
-        action_name = "completed" if new_status == "Completed" else "status_changed"
-        title = f"Project marked as completed: {project.name}" if new_status == "Completed" else f"Project status changed to {new_status}: {project.name}"
-        CRMService.record_activity(
-            db=db,
-            entity_type="project",
-            entity_id=project.id,
-            action=action_name,
-            title=title,
-            description=f"Status transitioned from {old_status} to {new_status}",
-            customer_id=project.customer_id,
-            customer_name=cust_name,
-            user_id=current_user.id,
-            status_val=new_status,
-        )
 
     db.commit()
     db.refresh(project)
@@ -295,17 +384,13 @@ def get_project_related_data(
 @router.delete(
     "/{project_id}",
     response_model=APIResponse[bool],
-    summary="Delete project",
+    summary="Cancel project (soft transition preserving history)",
 )
 def delete_project(
     project_id: int,
     current_user: User = Depends(require_roles(["Admin", "Manager"])),
     db: Session = Depends(get_db),
 ):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    CRMService.project_cancel_workflow(db, project_id, current_user.id)
+    return APIResponse(success=True, message="Project cancelled successfully (history preserved)", data=True)
 
-    db.delete(project)
-    db.commit()
-    return APIResponse(success=True, message="Project deleted successfully", data=True)

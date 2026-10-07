@@ -1,7 +1,7 @@
 import csv
 import io
 import math
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -14,7 +14,13 @@ from app.models.customer import Customer
 from app.models.project import Project
 from app.models.lead import Lead
 from app.models.site_survey import SiteSurvey
-from app.schemas.site_survey import SiteSurveyCreate, SiteSurveyUpdate, SiteSurveyResponse, SiteSurveyListResponse
+from app.schemas.site_survey import (
+    SiteSurveyCreate,
+    SiteSurveyUpdate,
+    SiteSurveyResponse,
+    SiteSurveyListResponse,
+    SiteSurveyCompleteRequest,
+)
 from app.schemas.common import APIResponse
 from app.services.crm_service import CRMService
 
@@ -276,6 +282,66 @@ def get_survey(
     return APIResponse(success=True, data=SiteSurveyResponse.model_validate(survey))
 
 
+@router.post(
+    "/{survey_id}/start",
+    response_model=APIResponse[SiteSurveyResponse],
+    summary="Start site survey (transitions Scheduled -> In Progress)",
+)
+def start_survey(
+    survey_id: int,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    survey = CRMService.site_survey_start_workflow(db, survey_id, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Site survey started successfully",
+        data=SiteSurveyResponse.model_validate(survey),
+    )
+
+
+@router.post(
+    "/{survey_id}/complete",
+    response_model=APIResponse[Dict[str, Any]],
+    summary="Complete site survey (transitions In Progress -> Completed, automatically sets Lead to Quoted)",
+)
+def complete_survey(
+    survey_id: int,
+    request: Optional[SiteSurveyCompleteRequest] = None,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    c_data = request.model_dump(exclude_unset=True) if request else {}
+    result = CRMService.site_survey_complete_workflow(db, survey_id, c_data, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Site survey completed and lead advanced to Quoted",
+        data={
+            "survey": SiteSurveyResponse.model_validate(result["survey"]).model_dump(),
+            "lead_id": result["lead"].id if result.get("lead") else None,
+            "lead_status": result["lead"].status if result.get("lead") else None,
+        },
+    )
+
+
+@router.post(
+    "/{survey_id}/cancel",
+    response_model=APIResponse[SiteSurveyResponse],
+    summary="Cancel site survey (soft transition without deleting row)",
+)
+def cancel_survey(
+    survey_id: int,
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    result = CRMService.site_survey_cancel_workflow(db, survey_id, current_user.id)
+    return APIResponse(
+        success=True,
+        message="Site survey cancelled successfully",
+        data=SiteSurveyResponse.model_validate(result["survey"]),
+    )
+
+
 @router.patch(
     "/{survey_id}",
     response_model=APIResponse[SiteSurveyResponse],
@@ -293,46 +359,26 @@ def update_survey(
 
     old_status = survey.status
     update_data = request.model_dump(exclude_unset=True)
+    target_status = update_data.get("status")
+
+    if target_status and target_status != old_status:
+        CRMService.validate_survey_transition(old_status, target_status)
+        if target_status == "In Progress":
+            survey = CRMService.site_survey_start_workflow(db, survey_id, current_user.id)
+        elif target_status == "Completed":
+            res = CRMService.site_survey_complete_workflow(db, survey_id, update_data, current_user.id)
+            survey = res["survey"]
+        elif target_status == "Cancelled":
+            res = CRMService.site_survey_cancel_workflow(db, survey_id, current_user.id)
+            survey = res["survey"]
+        # Remove status so apply_survey_update doesn't re-set it
+        update_data.pop("status", None)
+
     validate_customer_reference(db, update_data.get("customer_id"))
     validate_project_reference(db, update_data.get("project_id"))
     validate_lead_reference(db, update_data.get("lead_id"))
     validate_user_reference(db, update_data.get("assigned_user_id"))
     apply_survey_update(survey, update_data)
-
-    new_status = survey.status
-
-    if new_status != old_status:
-        action_name = "completed" if new_status == "Completed" else "status_changed"
-        CRMService.record_activity(
-            db=db,
-            entity_type="site_survey",
-            entity_id=survey.id,
-            action=action_name,
-            title=f"Site survey {new_status.lower()} for {survey.customer_name}",
-            description=f"Status changed from {old_status} to {new_status}. Roof info: {survey.roof_information or 'N/A'}",
-            customer_id=survey.customer_id,
-            customer_name=survey.customer_name,
-            user_id=current_user.id,
-            status_val=new_status,
-        )
-
-        # When survey completed, update linked lead if in Site Survey stage
-        if new_status == "Completed" and survey.lead_id:
-            lead = db.query(Lead).filter(Lead.id == survey.lead_id).first()
-            if lead and lead.status == "Site Survey":
-                lead.status = "Quoted"
-                CRMService.record_activity(
-                    db=db,
-                    entity_type="lead",
-                    entity_id=lead.id,
-                    action="status_changed",
-                    title=f"Lead moved to Quoted: {lead.name}",
-                    description="Survey completed; quote prepared for customer",
-                    customer_id=survey.customer_id,
-                    customer_name=survey.customer_name,
-                    user_id=current_user.id,
-                    status_val="Quoted",
-                )
 
     db.commit()
     db.refresh(survey)
@@ -346,17 +392,13 @@ def update_survey(
 @router.delete(
     "/{survey_id}",
     response_model=APIResponse[bool],
-    summary="Delete or cancel site survey",
+    summary="Cancel site survey (soft transition preserving history)",
 )
 def delete_survey(
     survey_id: int,
     current_user: User = Depends(require_roles(["Admin", "Manager"])),
     db: Session = Depends(get_db),
 ):
-    survey = db.query(SiteSurvey).filter(SiteSurvey.id == survey_id).first()
-    if not survey:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site survey not found")
+    CRMService.site_survey_cancel_workflow(db, survey_id, current_user.id)
+    return APIResponse(success=True, message="Site survey cancelled successfully (history preserved)", data=True)
 
-    db.delete(survey)
-    db.commit()
-    return APIResponse(success=True, message="Site survey deleted successfully", data=True)

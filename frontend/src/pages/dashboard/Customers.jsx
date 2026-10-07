@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Trash2, Edit2, Calendar, FolderOpen, Users, Clock, MapPin, Phone, Mail, Building } from "lucide-react";
+import { Edit2, Calendar, FolderOpen, Users, Clock, MapPin, Phone, Mail, Building } from "lucide-react";
 import PageHeader from "../../components/dashboard/PageHeader";
+
 import StatusBadge from "../../components/dashboard/StatusBadge";
 import Pagination from "../../components/dashboard/Pagination";
 import Modal from "../../components/dashboard/Modal";
@@ -98,12 +99,6 @@ export default function Customers() {
     }
   }
 
-  function openCreateModal() {
-    setEditingCustomer(null);
-    setForm(emptyForm);
-    setModalOpen(true);
-  }
-
   function openEditModal(customer) {
     setEditingCustomer(customer);
     setForm(toForm(customer));
@@ -123,37 +118,14 @@ export default function Customers() {
     try {
       if (editingCustomer) {
         await customerService.updateCustomer(editingCustomer.id, form);
-      } else {
-        await customerService.createCustomer(form);
       }
       notifyCrmChange("customers");
       setModalOpen(false);
       setEditingCustomer(null);
       setForm(emptyForm);
-      setPage(1);
       await loadCustomers();
     } catch (err) {
       setError(err.message || "Unable to save customer.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!editingCustomer || !window.confirm("Delete this customer?")) return;
-    setSaving(true);
-    setError("");
-    try {
-      await customerService.deleteCustomer(editingCustomer.id);
-      notifyCrmChange("customers");
-      setModalOpen(false);
-      setEditingCustomer(null);
-      if (overviewOpen && overviewCustomer?.id === editingCustomer.id) {
-        setOverviewOpen(false);
-      }
-      await loadCustomers();
-    } catch (err) {
-      setError(err.message || "Unable to delete customer.");
     } finally {
       setSaving(false);
     }
@@ -163,11 +135,9 @@ export default function Customers() {
     <div className="space-y-5">
       <PageHeader
         title="Customers"
-        subtitle="Central customer directory with linked leads, site surveys, and solar projects."
-        actionLabel="Add New Customer"
-        actionIcon={Plus}
-        onAction={openCreateModal}
+        subtitle="Central customer directory with linked leads, site surveys, and solar projects. Automatically created when leads are contacted."
       />
+
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
@@ -478,23 +448,12 @@ export default function Customers() {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            {editingCustomer && (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={saving}
-                className="inline-flex items-center gap-2 border border-red-200 rounded-lg px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            )}
             <button
               type="submit"
               disabled={saving}
               className="bg-[#1F5C3E] hover:bg-[#184A32] dark:bg-[#3FA46A] dark:hover:bg-[#4CBE7C] text-white dark:text-[#0E1712] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"
@@ -504,6 +463,7 @@ export default function Customers() {
               Cancel
             </button>
           </div>
+
         </form>
       </Modal>
     </div>

@@ -16,7 +16,8 @@ LEAD_SOURCES = {
     "Direct Enquiry",
     "Google Ads",
 }
-LEAD_STATUSES = {"New", "Contacted", "Site Survey", "Quoted", "Converted", "Lost"}
+LEAD_STATUSES = {"New", "Contacted", "Site Survey", "Quoted", "Converted", "Cancelled", "Lost"}
+
 
 
 def validate_choice(value: Optional[str], allowed: set[str], field_name: str) -> Optional[str]:

@@ -26,7 +26,8 @@ from app.services.crm_service import CRMService
 
 router = APIRouter(prefix="/leads", tags=["Leads Management"])
 
-LEAD_STATUSES = ["New", "Contacted", "Site Survey", "Quoted", "Converted", "Lost"]
+LEAD_STATUSES = ["New", "Contacted", "Site Survey", "Quoted", "Converted", "Cancelled", "Lost"]
+
 STAFF_ROLES = ["Admin", "Manager", "Sales Rep", "Support"]
 NULLABLE_LEAD_FIELDS = {"email", "phone", "notes", "estimated_value", "assigned_user_id", "customer_id"}
 
@@ -226,37 +227,28 @@ def update_lead(
 
     old_status = lead.status
     update_data = request.model_dump(exclude_unset=True)
+    target_status = update_data.get("status")
+
+    if target_status and target_status != old_status:
+        CRMService.validate_lead_transition(old_status, target_status)
+        if target_status == "Contacted":
+            lead = CRMService.lead_contacted_workflow(db, lead.id, current_user.id)
+        elif target_status == "Converted":
+            res = CRMService.lead_convert_workflow(db, lead.id, None, current_user.id)
+            lead = res["lead"]
+        elif target_status in ["Cancelled", "Lost"]:
+            lead = CRMService.lead_cancel_workflow(db, lead.id, target_status, current_user.id)
+        update_data.pop("status", None)
+
     validate_user_reference(db, update_data.get("assigned_user_id"))
     validate_customer_reference(db, update_data.get("customer_id"))
     apply_lead_update(lead, update_data)
-
-    new_status = lead.status
-
-    # Workflow synchronization on status change
-    if new_status != old_status:
-        if new_status == "Contacted":
-            CRMService.find_or_create_customer_for_lead(db, lead)
-        elif new_status == "Site Survey" and not lead.customer_id:
-            CRMService.find_or_create_customer_for_lead(db, lead)
-        elif new_status == "Converted":
-            CRMService.lead_convert_workflow(db, lead.id, None, current_user.id)
-
-        CRMService.record_activity(
-            db=db,
-            entity_type="lead",
-            entity_id=lead.id,
-            action="status_changed",
-            title=f"Lead moved to {new_status}: {lead.name}",
-            customer_id=lead.customer_id,
-            customer_name=lead.customer.name if lead.customer else lead.name,
-            user_id=current_user.id,
-            status_val=new_status,
-        )
 
     db.commit()
     db.refresh(lead)
 
     return APIResponse(success=True, message="Lead updated successfully", data=build_lead_response(lead, db))
+
 
 
 @router.post(
@@ -385,20 +377,35 @@ def get_lead_related_data(
     )
 
 
+@router.post(
+    "/{lead_id}/cancel",
+    response_model=APIResponse[LeadResponse],
+    summary="Cancel or mark lead as Lost (soft transition)",
+)
+def cancel_lead(
+    lead_id: int,
+    status_val: str = Query("Cancelled", description="'Cancelled' or 'Lost'"),
+    current_user: User = Depends(require_roles(STAFF_ROLES)),
+    db: Session = Depends(get_db),
+):
+    lead = CRMService.lead_cancel_workflow(db, lead_id, status_val, current_user.id)
+    return APIResponse(
+        success=True,
+        message=f"Lead marked as {lead.status}",
+        data=build_lead_response(lead, db),
+    )
+
+
 @router.delete(
     "/{lead_id}",
     response_model=APIResponse[bool],
-    summary="Delete lead",
+    summary="Cancel lead (soft transition preserving CRM history)",
 )
 def delete_lead(
     lead_id: int,
     current_user: User = Depends(require_roles(["Admin", "Manager"])),
     db: Session = Depends(get_db),
 ):
-    lead = db.query(Lead).filter(Lead.id == lead_id).first()
-    if not lead:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found")
+    CRMService.lead_cancel_workflow(db, lead_id, "Cancelled", current_user.id)
+    return APIResponse(success=True, message="Lead cancelled successfully (history preserved)", data=True)
 
-    db.delete(lead)
-    db.commit()
-    return APIResponse(success=True, message="Lead deleted successfully", data=True)

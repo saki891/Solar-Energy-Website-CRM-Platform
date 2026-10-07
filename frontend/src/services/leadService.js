@@ -60,8 +60,16 @@ export const leadService = {
     return unwrapData(response);
   },
 
+  async cancelLead(id, status = "Cancelled") {
+    const response = await apiRequest(`/leads/${id}/cancel?status_val=${encodeURIComponent(status)}`, {
+      method: "POST",
+    });
+    return unwrapData(response);
+  },
+
   async getLeadRelatedData(id) {
     const response = await apiRequest(`/leads/${id}/related-data`);
     return unwrapData(response);
   },
 };
+
